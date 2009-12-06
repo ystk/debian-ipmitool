@@ -1,0 +1,21 @@
+diff -rupN ipmitool-1.8.11/lib/ipmi_main.c ipmitool-1.8.11.fixed/lib/ipmi_main.c
+--- ipmitool-1.8.11/lib/ipmi_main.c	2009-02-26 05:38:52.000000000 +0900
++++ ipmitool-1.8.11.fixed/lib/ipmi_main.c	2009-12-04 06:50:08.246119798 +0900
+@@ -106,7 +106,7 @@ ipmi_password_file_read(char * filename)
+ 	char * pass = NULL;
+ 	int l;
+ 
+-	pass = malloc(16);
++	pass = malloc(21);
+ 	if (pass == NULL) {
+ 		lprintf(LOG_ERR, "ipmitool: malloc failure");
+ 		return NULL;
+@@ -120,7 +120,7 @@ ipmi_password_file_read(char * filename)
+ 	}
+ 
+ 	/* read in id */
+-	if (fgets(pass, 16, fp) == NULL) {
++	if (fgets(pass, 21, fp) == NULL) {
+ 		lprintf(LOG_ERR, "Unable to read password from file %s",
+ 			filename);
+ 		fclose(fp);

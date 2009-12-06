@@ -1,60 +1,87 @@
-version (1.8.11) unstable; urgency=low
-  * Fix new GCC compilation issues in regards to Packing
-  * Fix Tracker bug #1642710 - ipmi_kcs_drv being loaded/unloaded
-       for 2.4 kernel instead of ipmi_si_drv driver module
-  * New -y option added to allow specification of kg keys with
-       non-printable characters
-  * New -K option added to allow kgkey settings via environmental
-       variable IPMI_KGKEY
-  * Generic device support added for EEPROM with SDR Type 10h (gendev)
-  * Fix to lan-bridging for a double-bridging crash and to fix
-       an issue with bridging multiple concurrent requests and
-       erroneous handling of raw Send Message
-  * Lanplus fix for commands like 'sensor list' without the -t option
-       causing wrong double bridged requests of a sensor is located
-       on another satellite controller
-  * Fix lan and lanplus request list entry removal bugs
-  * Fix non-working issue when trying to send a bridge message with
-       Cipher 3
-  * Change bridge message handling to reuse command ipmi_lan_poll_recv
-  * Added PICMG 2.0 and 2.3 support
-  * Fix PICMG (ATCA) extension verification and reversal of BCD encoded
-       values for "major" and "minor" fields
-  * Add IANA support for Pigeon Point
-  * Add OEM SW/FW Record identification
-  * Fix to include I2C and LUN addresses so sensors are correctly managed
-  * Patch ID 1990560 to get readings from non-linear analog sensors
-  * Add support for SOL payload status command
-  * SOL set parameter range checking added
-  * Fixed SOL activate options usage 
-  * Fixed crashes when parsing 'sol payload' and 'tsol' cmds (#216967)
-  * Added retries to SOL keepalive
-  * Fixed wrong mask values for Front Panel disable/enable status
-  * Add support to access fru internal use area
-  * Add support for new PICMG 3.0 R3.0 (March 24, 2008) to allow
-       blocks of data within the FRU storage area to be write
-       protected.
-  * Fix node reporting in GUID; Tracker bug #2339675
-  * Fix watchdog use/action print strings
-  * Fix endian bug in SDR add from file; Tracker bug #2075258
-  * Fix crash when dumping SDRs in a file and there's an error
-       getting an SDR; improve algorithm for optimal packet size
-  * Fix occasional SDR dump segfault; #1793076
-  * Allow ipmitool sel delete to accept hex list entry numbers
-  * Fix SEL total space reporting.
-  * Fix for garbage sensor threshold values reported when none 
-       returned.  Tracker Bug #863748
-  * ipmievd change to Monitor %used in SEL buffer and log warnings when
-       the buffer is 80% and 100% full
+ipmitool (1.8.11-2) unstable; urgency=low
 
- -- Petter Reinholdtsen <pere@debian.org>  Wed, 25 Feb 2009 09:44:31 +0200
+  * Fix password reading (Patch from Kris Popendorf 
+    <08kcn0b02@sneakemail.com> closes: #559363)
+  * Remove libreadline5-dev dependency in favour of libreadline-dev
+    (Closes: #553788)
 
-ipmitool (1.8.10) unstable; urgency=low
+ -- Matthew Johnson <mjj29@debian.org>  Sun, 06 Dec 2009 00:05:49 +0000
 
-  * New upstream version.
-  * Patch to allow Debian package builds from cvs.
+ipmitool (1.8.11-1) unstable; urgency=low
 
- -- Petter Reinholdtsen <pere@debian.org>  Fri,  8 Aug 2008 09:44:31 +0200
+  * New upstream release 
+  * Change to quilt rather than dpatch
+  * Refresh config.sub/config.guess in configure
+  * Bump standards version
+
+ -- Matthew Johnson <mjj29@debian.org>  Sun, 22 Mar 2009 16:44:06 +0000
+
+ipmitool (1.8.9-2) unstable; urgency=medium
+
+  * Change pidfile name to the one it actually is. (Closes: #508434)
+  * Fix typo in README (Closes: #508231)
+  * Make sdr/Temperatures reading working again (Closes: #507760):
+     - Add patch to revert some bits from 1.8.8 to 1.8.9:
+       20_ipmi_sdr.dpatch (Patch from Cyril Brulebois
+       <cyril.brulebois@kerlabs.com>)
+  * Bump Standards-Version
+  * Remove empty /usr/share/ipmitool directory 
+
+ -- Matthew Johnson <mjj29@debian.org>  Tue, 19 Feb 2008 15:21:40 +0000
+
+ipmitool (1.8.9-1) unstable; urgency=low
+
+  * Adopt package (Closes: #432027)
+  * New upstream release
+    - Closes: #422864
+    - Closes: #377628
+  * Add patch to fix segfault (Closes: #389741)
+  * Add patch to fix isol (Closes: #412816)
+  * Add watch file
+  * Move from DH_COMPAT to debian/compat 
+  * Bump to dephelper v5
+
+ -- Matthew Johnson <mjj29@debian.org>  Thu, 13 Dec 2007 10:25:22 +0000
+
+ipmitool (1.8.8-3.1) unstable; urgency=high
+
+  * Non-maintainer upload.
+  * High urgency for RC bug fix.
+  * Fix build with linux-libc-dev (closes: #428929).
+  * Fix debian/rules to not rerun configure in the binary target.
+
+ -- Julien Cristau <jcristau@debian.org>  Fri, 20 Jul 2007 16:29:18 +0200
+
+ipmitool (1.8.8-3) unstable; urgency=low
+
+  * Ported fix to ipmievd from upstream version 1.8.9 (Closes: #408536):
+    - fix ipmievd fd closing bug.  Patch from Rupert Hair.
+  * Started using dpatch to apply patches.  Added dpatch to build dependencies.
+  * Add powerpc to the list of supported archs (Closes: #405455)
+
+ -- Petter Reinholdtsen <pere@debian.org>  Tue, 03 Apr 2007 16:37:45 +0200
+
+ipmitool (1.8.8-2) unstable; urgency=low
+
+  * Add handler for the ipmievd init.d script failure during removal and
+    installation.  If it fail during installation, update
+    /etc/default/ipmievd to disable ipmievd.
+
+ -- Petter Reinholdtsen <pere@debian.org>  Sun,  1 Oct 2006 11:21:44 +0200
+
+ipmitool (1.8.8-1) unstable; urgency=low
+
+  * New upstream release.
+    - Daemon now tries to access device before it forks, and thus will
+      report errors to the init.d script if it fail. (Closes: #362425)
+  * Make it possible to disable ipmievd by setting ENABLED=false in
+    /etc/defaults/ipmievd. (Closes: #370511)
+  * Add --oknodo as start-stop-daemon argument when stopping ipmievd,
+    to avoid returning an error if it is not running. (Closes: #370509)
+  * Update standards-version from 3.6.2.1 to 3.7.2.  No changes needed.
+  * Correct dependency and runlevel info in init.d script.
+
+ -- Petter Reinholdtsen <pere@debian.org>  Fri, 29 Sep 2006 19:16:41 +0200
 
 ipmitool (1.8.7-2) unstable; urgency=low
 
@@ -162,14 +189,14 @@ ipmitool (1.8.0) unstable; urgency=low
   * Fix chassis boot parameter support
   * Add support for linear sensors
 
- -- Duncan Laurie <duncan@iceblink.org>  Wed, Mar 16 2005 17:08:12 -0700
+ -- Duncan Laurie <duncan@iceblink.org>  Wed, 16 Mar 2005 17:08:12 -0700
 
 ipmitool (1.7.1) unstable; urgency=low
 
   * Update bmc plugin to work with new Solaris bmc driver (new ioctl
     for interface detection and new STREAMS message-based interface).
 
- -- Seth Goldberg <sethmeisterg@hotmail.com>  Mon, Mar 7 2005 18:03:00 -0800
+ -- Seth Goldberg <sethmeisterg@hotmail.com>  Mon,  7 Mar 2005 18:03:00 -0800
 
 ipmitool (1.7.0) unstable; urgency=low
 
@@ -185,7 +212,7 @@ ipmitool (1.7.0) unstable; urgency=low
   * New "bmc" plugin for Solaris 10 x86
   * Many bugfixes and contributed patches
 
- -- Duncan Laurie <duncan@iceblink.org>  Fri, Jan 7 2005 19:58:22 -0700
+ -- Duncan Laurie <duncan@iceblink.org>  Fri,  7 Jan 2005 19:58:22 -0700
 
 ipmitool (1.6.2) unstable; urgency=low
 
@@ -228,7 +255,7 @@ ipmitool (1.5.9) unstable; urgency=low
   * Add configure option for changing binary to ipmiadm for Solaris
   * Fix compile problem on Solaris 8
 
- -- Duncan Laurie <duncan@iceblink.org>  Sat, 27 Mar 2004 00:11:37 -0700
+ -- Duncan Laurie <duncan@sun.com>  Sat, 27 Mar 2004 00:11:37 -0700
 
 ipmitool (1.5.8) unstable; urgency=low
 
@@ -242,7 +269,7 @@ ipmitool (1.5.8) unstable; urgency=low
   * Add support for Linux kernel panic messages in SEL output
   * Add support for type 3 SDR records
 
- -- Duncan Laurie <duncan@iceblink.org>  Tue, 27 Jan 2004 16:23:25 -0700
+ -- Duncan Laurie <duncan@sun.com>  Tue, 27 Jan 2004 16:23:25 -0700
 
 ipmitool (1.5.7) unstable; urgency=low
 
@@ -251,7 +278,7 @@ ipmitool (1.5.7) unstable; urgency=low
   * better handling of SDR printing
   * contrib scripts for creating rrdtool graphs
 
- -- Duncan Laurie <duncan@iceblink.org>  Mon,  5 Jan 2004 17:29:50 -0700
+ -- Duncan Laurie <duncan@sun.com>  Mon,  5 Jan 2004 17:29:50 -0700
 
 ipmitool (1.5.6) unstable; urgency=low
 
@@ -260,40 +287,40 @@ ipmitool (1.5.6) unstable; urgency=low
   * Fix sdr handling of sensors that do not return a reading
   * Fix for CSV display of sensor readings/units from Fredrik Öhrn
 
- -- Duncan Laurie <duncan@iceblink.org>  Thu,  4 Dec 2003 14:47:19 -0700
+ -- Duncan Laurie <duncan@sun.com>  Thu,  4 Dec 2003 14:47:19 -0700
 
 ipmitool (1.5.5) unstable; urgency=low
 
   * Add -U option for setting LAN username
   * Fix -v usage for plugin interfaces
 
- -- Duncan Laurie <duncan@iceblink.org>  Tue, 25 Nov 2003 15:10:48 -0700
+ -- Duncan Laurie <duncan@sun.com>  Tue, 25 Nov 2003 15:10:48 -0700
 
 ipmitool (1.5.4) unstable; urgency=low
 
   * Put interface plugin API into library
   * Fix ipmievd
 
- -- Duncan Laurie <duncan@iceblink.org>  Fri, 14 Nov 2003 15:16:34 -0700
+ -- Duncan Laurie <duncan@sun.com>  Fri, 14 Nov 2003 15:16:34 -0700
 
 ipmitool (1.5.3) unstable; urgency=low
 
   * Add -g option to work with grizzly bmc
 
- -- Duncan Laurie <duncan@iceblink.org>  Mon,  3 Nov 2003 18:04:07 -0700
+ -- Duncan Laurie <duncan@sun.com>  Mon,  3 Nov 2003 18:04:07 -0700
 
 ipmitool (1.5.2) unstable; urgency=low
 
   * add support for setting gratuitous arp interval 
 
- -- Duncan Laurie <duncan@iceblink.org>  Fri, 24 Oct 2003 11:00:00 -0700
+ -- Duncan Laurie <duncan@sun.com>  Fri, 24 Oct 2003 11:00:00 -0700
 
 ipmitool (1.5.1) unstable; urgency=low
 
   * better SEL support
   * fix display bug in SDR list
 
- -- Duncan Laurie <duncan@iceblink.org>  Wed,  8 Oct 2003 17:28:51 -0700
+ -- Duncan Laurie <duncan@sun.com>  Wed,  8 Oct 2003 17:28:51 -0700
 
 ipmitool (1.5.0) unstable; urgency=low
 
@@ -301,24 +328,24 @@ ipmitool (1.5.0) unstable; urgency=low
   * add Intel IMB driver support
   * use autoconf/automake/libtool
 
- -- Duncan Laurie <duncan@iceblink.org>  Fri,  5 Sep 2003 11:57:32 -0700
+ -- Duncan Laurie <duncan@sun.com>  Fri,  5 Sep 2003 11:57:32 -0700
 
 ipmitool (1.2-1) unstable; urgency=low
 
   * New command line option parsing
   * More chassis commands supported
 
- -- Duncan Laurie <duncan@iceblink.org>  Wed,  2 Apr 2003 17:44:17 -0700
+ -- Duncan Laurie <duncan@sun.com>  Wed,  2 Apr 2003 17:44:17 -0700
 
 ipmitool (1.1-1) unstable; urgency=low
 
   * Minor fixes.
 
- -- Duncan Laurie <duncan@iceblink.org>  Tue,  1 Apr 2003 14:31:10 -0700
+ -- Duncan Laurie <duncan@sun.com>  Tue,  1 Apr 2003 14:31:10 -0700
 
 ipmitool (1.0-1) unstable; urgency=low
 
   * Initial Release.
 
- -- Duncan Laurie <duncan@iceblink.org>  Sun, 30 Mar 2003 21:30:46 -0700
+ -- Duncan Laurie <duncan@sun.com>  Sun, 30 Mar 2003 21:30:46 -0700
 
