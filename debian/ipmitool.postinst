@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -e
 
 ipmievd_initd_failed() {
 	echo "Unable to start ipmievd during installation.  Trying to disable."

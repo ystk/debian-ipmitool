@@ -1,3 +1,36 @@
+ipmitool (1.8.11-5) unstable; urgency=high
+
+  * debian/control: Add libncurses-dev build dependency
+  * Don't set umask to fix CVE-2011-4339 (Closes: #651917).
+
+ -- Luk Claes <luk@debian.org>  Wed, 28 Dec 2011 12:34:15 +0100
+
+ipmitool (1.8.11-4) unstable; urgency=low
+
+  * debian/control:
+    - Add ${misc:Depends} so deps can be added by debhelper.
+  * debian/README.source: Add reference to quilt docs.
+  * debian/ipmitool.ipmievd.init: 
+    - Test if /etc/default/rcS exists, before executing it.
+    - Add status support (Closes: #536119).
+  * debian/ipmitool.{post,pre}{inst,rm}: Add -e.
+  * Fix buffer overflow in tsol session.
+  * Update Vcs-Browser as URL mentioned within Alioth's gitweb 
+    interface does not work.
+
+ -- Luk Claes <luk@debian.org>  Thu, 22 Sep 2011 07:49:10 +0200
+
+ipmitool (1.8.11-3) unstable; urgency=high
+
+  * debian/control: 
+    - Add myself as co-maintainer.
+    - Add Vcs entries.
+    - Update Architecture to any as ipmitool can be used for 
+      remote devices (Closes: #578492).
+  * Only approach rsp->data when rsp is set (Closes: #637423).
+
+ -- Luk Claes <luk@debian.org>  Mon, 19 Sep 2011 19:35:04 +0200
+
 ipmitool (1.8.11-2) unstable; urgency=low
 
   * Fix password reading (Patch from Kris Popendorf 

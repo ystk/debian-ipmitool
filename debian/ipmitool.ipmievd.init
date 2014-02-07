@@ -30,7 +30,7 @@ ENABLED=true
 test -x $DAEMON || exit 0
 
 . /lib/lsb/init-functions
-. /etc/default/rcS
+test -r /etc/default/rcS && . /etc/default/rcS
 
 # Options used by ipmievd.
 #
@@ -93,8 +93,11 @@ case "$1" in
 	log_end_msg $CODE
 	exit $CODE
 	;;
+  status)
+	status_of_proc $DAEMON $NAME
+	;;
   *)
-	echo "Usage: $SCRIPTNAME {start|stop|restart|force-reload}" >&2
+	echo "Usage: $SCRIPTNAME {start|stop|restart|force-reload|status}" >&2
 	exit 1
 	;;
 esac

@@ -2,12 +2,15 @@ Source: ipmitool
 Section: utils
 Priority: optional
 Maintainer: Matthew Johnson <mjj29@debian.org>
-Build-Depends: debhelper (>> 5.0.0), libreadline-dev, libssl-dev, quilt, autotools-dev
+Uploaders: Luk Claes <luk@debian.org>
+Build-Depends: debhelper (>> 5.0.0), libreadline-dev, libncurses-dev, libssl-dev, quilt, autotools-dev
+Vcs-Browser: http://anonscm.debian.org/gitweb/?p=collab-maint/ipmitool.git
+Vcs-Git: git://anonscm.debian.org/git/collab-maint/ipmitool.git
 Standards-Version: 3.8.0
 
 Package: ipmitool
-Architecture: i386 amd64 ia64 powerpc
-Depends: ${shlibs:Depends}, lsb-base
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, lsb-base
 Suggests: openipmi
 Description: utility for IPMI control with kernel driver or LAN interface
  A utility for managing and configuring devices that support the

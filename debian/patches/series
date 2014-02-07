@@ -1,2 +1,5 @@
 99_readme_typo
 passwd_option
+fix_sdr_segfault
+101_fix_buf_overflow
+112_fix_CVE-2011-4339
