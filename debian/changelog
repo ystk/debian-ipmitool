@@ -1,3 +1,17 @@
+ipmitool (1.8.11-2+squeeze2) stable-security; urgency=high
+
+  * Don't set umask to fix CVE-2011-4339 (Closes: #651917).
+
+ -- Luk Claes <luk@debian.org>  Wed, 28 Dec 2011 13:53:15 +0100
+
+ipmitool (1.8.11-2+squeeze1) stable; urgency=low
+
+  * debian/control: 
+    - Add myself as co-maintainer.
+  * Only approach rsp->data when rsp is set (Closes: #637423).
+
+ -- Luk Claes <luk@debian.org>  Thu, 22 Sep 2011 21:42:49 +0200
+
 ipmitool (1.8.11-2) unstable; urgency=low
 
   * Fix password reading (Patch from Kris Popendorf 

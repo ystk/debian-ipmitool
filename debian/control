@@ -2,6 +2,7 @@ Source: ipmitool
 Section: utils
 Priority: optional
 Maintainer: Matthew Johnson <mjj29@debian.org>
+Uploaders: Luk Claes <luk@debian.org>
 Build-Depends: debhelper (>> 5.0.0), libreadline-dev, libssl-dev, quilt, autotools-dev
 Standards-Version: 3.8.0
 
