@@ -1,3 +1,110 @@
+ipmitool (1.8.14-4) unstable; urgency=medium
+
+  * New debian/patches/120-Dell-13G.patch:
+    - Add support for Dell 13G server (Closes: #756555)
+  * debian/rules:
+    - Remove oldstyle CFLAGS parameter.
+    - change hardening to modern dh.
+
+ -- Jörg Frings-Fürst <debian@jff-webhosting.net>  Thu, 07 Aug 2014 15:09:16 +0200
+
+ipmitool (1.8.14-3) unstable; urgency=medium
+
+  * move ipmitool.conf 
+     from /etc/modules-load.d
+     to /usr/lib/modules-load.d ( Closes: #753762 )
+
+ -- Jörg Frings-Fürst <debian@jff-webhosting.net>  Mon, 02 Jun 2014 20:46:28 +0200
+
+ipmitool (1.8.14-2) unstable; urgency=medium
+  
+  * patch 115-lib_declarations.patch 
+     - lib/kontronoem.c
+       correct declaration of write_fru_area ( Closes: #749913 )
+  * remove hardening-wrapper from build-Depends
+  * add ipmi* kernel-modules to startup-script
+     ( LP: #908112 )
+  * add debian/systemd/ipmitool.conf to load 
+     ipmi* kernel-modules under systemd
+  * add debian/source/option
+     compression xy / level 9
+
+  [ Gerald Turner <gturner@unzane.com> ]
+  * changes on systemd startup scripts ( Closes: #750003 )
+
+ -- Jörg Frings-Fürst <debian@jff-webhosting.net>  Tue, 27 May 2014 14:53:55 +0200
+
+ipmitool (1.8.14-1) unstable; urgency=medium
+
+  * remove debian/README.debian
+  * remove debian/dirs
+  * add debian/ipmitool.ipmievd.default
+    - default ipmievd start is disabled
+  * add patch 
+    - 096-manpage_longlines.patch
+    - 097-source_typo.patch
+    - 098-manpage_typo.patch 
+      - fix "tiny misprint" ( Closes: #554348 )
+  * add systemd
+  * rewrite debian/copyright
+  * add debian/source/format
+  * debian/control
+    - add homepage ( Closes: #744283 )
+    - bump Standards-Version to 3.9.5
+    - remove unused Build-Depends
+      - quilt
+  * change to upstream version 1.8.14
+    - fix FTBFS on kfreebsd ( Closes: #725476 )
+  * Bumps compat to 9
+  * New maintainer ( Closes: #748487 )
+
+ -- Jörg Frings-Fürst <debian@jff-webhosting.net>  Sun, 18 May 2014 17:40:37 +0200
+
+ipmitool (1.8.13-1) unstable; urgency=low
+
+  * New upstream release
+    - Fixes regression in default cipher suite selection (Closes: #708621).
+
+ -- Luk Claes <luk@debian.org>  Wed, 18 Sep 2013 07:45:10 +0200
+
+ipmitool (1.8.12-1) unstable; urgency=low
+
+  * Merge new upstream from Ubuntu (Closes: #692292).
+
+ -- Luk Claes <luk@debian.org>  Tue, 07 May 2013 18:12:12 +0200
+
+ipmitool (1.8.12-0ubuntu2) raring; urgency=low
+
+  * debian/patches/big_endian: cherry-pick missing includes from upstream;
+    fixes FTBFS on powerpc.
+
+ -- Robie Basak <robie.basak@canonical.com>  Tue, 05 Mar 2013 13:38:42 +0000
+
+ipmitool (1.8.12-0ubuntu1) raring; urgency=low
+
+  * New upstream release (LP: #1074443):
+    - Dropped patches:
+      + fix_sdr_segfault: ipmi_sdr_print_sensor_compact no longer
+        exists upstream.
+      + dell_*: merged upstream.
+
+ -- Robie Basak <robie.basak@canonical.com>  Mon, 04 Mar 2013 12:13:46 +0000
+
+ipmitool (1.8.11-5ubuntu1) precise; urgency=low
+
+  * Merge from Debian testing (LP: #914920).  Remaining changes:
+    - debian/contol:
+      + Changed openipmi from Suggests to Recommends
+    - debian/copyright:
+      + Add DELL copyright notice.
+    - Apply a series of 6 patches from upstream's patch tracker to
+      add DELL specific commands (delloem)
+  * Drop changes:
+    - Add armel/armhf support, now Architecture is any
+    - 101_fix_buf_overflow.patch now in debian
+
+ -- Leo Iannacone <l3on@ubuntu.com>  Wed, 11 Jan 2012 18:49:15 +0100
+
 ipmitool (1.8.11-5) unstable; urgency=high
 
   * debian/control: Add libncurses-dev build dependency
@@ -31,6 +138,51 @@ ipmitool (1.8.11-3) unstable; urgency=high
 
  -- Luk Claes <luk@debian.org>  Mon, 19 Sep 2011 19:35:04 +0200
 
+ipmitool (1.8.11-2ubuntu6) oneiric; urgency=low
+
+  * Add armel/armhf support
+
+ -- Michael Casadevall <mcasadevall@ubuntu.com>  Wed, 05 Oct 2011 15:04:58 -0700
+
+ipmitool (1.8.11-2ubuntu5) oneiric; urgency=low
+
+  * Rebuild for OpenSSL 1.0.0.
+
+ -- Colin Watson <cjwatson@ubuntu.com>  Wed, 18 May 2011 00:10:19 +0100
+
+ipmitool (1.8.11-2ubuntu4) natty; urgency=low
+
+  * Changed openipmi from Suggests to Recommends to ensure 
+    it's installed too. (LP: #110992)
+
+ -- Jeff Lane <jeff@ubuntu.com>  Wed, 09 Mar 2011 10:40:28 -0500
+
+ipmitool (1.8.11-2ubuntu3) maverick; urgency=low
+
+  * debian/patches/101_fix_buf_overflow.patch: Add patch to fix buffer overflow.
+    (LP: #633054) 
+
+ -- Chuck Short <zulcss@ubuntu.com>  Wed, 08 Sep 2010 09:11:26 -0400
+
+ipmitool (1.8.11-2ubuntu2) maverick; urgency=low
+
+  * Actually remove 30_ipmi_delloem.patch this time.
+
+ -- Stefano Rivera <stefano@rivera.za.net>  Mon, 28 Jun 2010 12:47:48 +0200
+
+ipmitool (1.8.11-2ubuntu1) maverick; urgency=low
+
+  [ Lorenzo De Liso ]
+  * Merge from debian unstable (LP: #598993), remaining changes:
+    - debian/copyright:
+      + Add DELL copyright notice.
+
+  [ Stefano Rivera ]
+  * Replaced 30_ipmi_delloem.patch (never accepted upstream) with a new series
+    of 6 patches from upstream's patch tracker.
+
+ -- Lorenzo De Liso <blackz@ubuntu.com>  Sun, 27 Jun 2010 12:26:30 +0200
+
 ipmitool (1.8.11-2) unstable; urgency=low
 
   * Fix password reading (Patch from Kris Popendorf 
@@ -40,6 +192,19 @@ ipmitool (1.8.11-2) unstable; urgency=low
 
  -- Matthew Johnson <mjj29@debian.org>  Sun, 06 Dec 2009 00:05:49 +0000
 
+ipmitool (1.8.11-1ubuntu1) karmic; urgency=low
+
+  * Merge from debian unstable, remaining changes:
+    + debian/control:
+       - change Maintainer field according to specs.
+    + debian/patches/30_ipmi_delloem:.patch:
+       - Rediffed due to version bump.
+       - Dropped dpatchiness.
+    + debian/copyright:
+      - Add DELL copyright notice.
+
+ -- Chuck Short <zulcss@ubuntu.com>  Mon, 23 Mar 2009 00:01:26 +0000
+
 ipmitool (1.8.11-1) unstable; urgency=low
 
   * New upstream release 
@@ -48,6 +213,21 @@ ipmitool (1.8.11-1) unstable; urgency=low
   * Bump standards version
 
  -- Matthew Johnson <mjj29@debian.org>  Sun, 22 Mar 2009 16:44:06 +0000
+
+ipmitool (1.8.9-2ubuntu1) jaunty; urgency=low
+
+  * debian/patches/30_ipmi_delloem:
+    - add DELL specific commands (delloem)
+  * debian/patches/20_ipmi_ipmi:
+    - clean up *.orig
+  * debian/patches/20_ipmi_isol:
+    - clean up *.orig
+  * debian/copyright:
+    - add DELL copyright notice
+  * debian/control:
+    - change Maintainer field
+
+ -- Ante Karamatic <ivoks@ubuntu.com>  Wed, 18 Feb 2009 08:48:33 +0100
 
 ipmitool (1.8.9-2) unstable; urgency=medium
 

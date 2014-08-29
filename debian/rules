@@ -1,112 +1,31 @@
 #!/usr/bin/make -f
 
-include /usr/share/quilt/quilt.make
+#include /usr/share/quilt/quilt.make
 
 #export DH_VERBOSE=1
 export DH_OPTIONS
 
-CFLAGS = -Wall -g
+#
+# Hardening
+#
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+DPKG_EXPORT_BUILDFLAGS = 1
+include /usr/share/dpkg/buildflags.mk
 
-ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
-	CFLAGS += -O0
-else
-	CFLAGS += -O2
-endif
-ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
-	INSTALL_PROGRAM += -s
-endif
 
-configure: configure-stamp
-configure-stamp: patch
-	dh_testdir
-	cp /usr/share/misc/config.sub config.sub
-	cp /usr/share/misc/config.guess config.guess
-	./configure --prefix=/usr \
-		    --with-kerneldir \
-		    --mandir=/usr/share/man
-	touch configure-stamp
 
-#Architecture 
-build: build-arch build-indep
+%:
+	dh $@ --with systemd
 
-build-arch: build-arch-stamp
-build-arch-stamp: configure-stamp 
-	
-	# Add here commands to compile the arch part of the package.
-	$(MAKE)
-	touch build-arch-stamp
-
-build-indep: build-indep-stamp
-build-indep-stamp: configure-stamp 
-	touch build-indep-stamp
-
-	# Add here commands to compile the indep part of the package.
-	#$(MAKE) doc
-
-clean: unpatch
-	dh_testdir
-	dh_testroot
-	rm -f build-arch-stamp build-indep-stamp configure-stamp
-	rm -f config.sub config.guess
-	
-	# Add here commands to clean up after the build process.
-	if [ -f Makefile ]; then $(MAKE) distclean; fi
-	
-	dh_clean
-
-install: install-arch #install-indep
-install-indep:
-	dh_testdir
-	dh_testroot
-	dh_clean -k -i
-	dh_installdirs -i
-
-	# Add here commands to install the indep part of the package into
-	# debian/<package>-doc.
-	#INSTALLDOC#
-	#	$(MAKE) install-doc DESTDIR=$(CURDIR)/debian/tmp/ipmitool-doc
-	#	dh_movefiles -i
-
-install-arch:
-	dh_testdir
-	dh_testroot
-	dh_clean -k -a
-	dh_installdirs -a
-	
-	# Add here commands to install the arch part of the package into 
-	# debian/tmp.
-	$(MAKE) install DESTDIR=$(CURDIR)/debian/ipmitool
-	
+override_dh_auto_install:
+	dh_auto_install
+	cp -f $(CURDIR)/debian/systemd/ipmitool.conf $(CURDIR)/debian/ipmitool/usr/lib/modules-load.d/ipmievd.conf
 	# No need to have two copies of the license text/changelog in the package.
 	$(RM) $(CURDIR)/debian/ipmitool/usr/share/doc/ipmitool/COPYING
 	$(RM) $(CURDIR)/debian/ipmitool/usr/share/doc/ipmitool/ChangeLog 
-
-# Must not depend on anything. This is to be called by
-# binary-arch/binary-multi
-# in another 'make' thread.
-binary-common:
-	dh_testdir
-	dh_testroot
-	dh_installdocs
-	dh_installchangelogs ChangeLog
+	
+override_dh_installinit:
 	dh_installinit --name ipmievd --error-handler=ipmievd_initd_failed
-	dh_link
-	dh_strip
-	dh_compress 
-	dh_fixperms
-	dh_makeshlibs
-	dh_shlibdeps
-	dh_installdeb
-	dh_gencontrol
-	dh_md5sums
-	dh_builddeb
-# Build architecture independant packages using the common target.
-binary-indep: build-indep install-indep
-	$(MAKE) -f debian/rules DH_OPTIONS=-i binary-common
 
-# Build architecture dependant packages using the common target.
-binary-arch: build-arch install-arch
-	$(MAKE) -f debian/rules DH_OPTIONS=-a binary-common
-
-binary: binary-arch #binary-indep
-.PHONY: build build-arch build-indep clean binary-indep binary-arch binary install install-indep install-arch configure
+override_dh_auto_configure:
+	dh_auto_configure -- --prefix=/usr --with-kerneldir --mandir=/usr/share/man

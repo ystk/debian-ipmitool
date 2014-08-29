@@ -1,0 +1,245 @@
+Description: typo in man-page
+Author: Jörg Frings-Fürst <debian@jff-webhosting.net>
+Last-Update: 2014-05-19
+---
+This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
+Index: trunk/doc/ipmitool.1
+===================================================================
+--- trunk.orig/doc/ipmitool.1	2014-05-19 14:51:15.664997239 +0200
++++ trunk/doc/ipmitool.1	2014-05-19 14:54:07.340072131 +0200
+@@ -10,47 +10,47 @@
+ Any recognized option is accepted. Conditional options may be ignored or it's usage postponed until shell or exec processes relevant command.
+ .br
+ 
+-<general-options>   := [ -h | -V | -v | -I <interface> | -H <address> |
+-                         -d <N> | -p <port> | -c | -U <username> |
+-                         -L <privlvl> | -l <lun> | -m <local_address> |
+-                         -N <sec> | -R <count> | <password-option> |
++<general\-options>   := [ \-h | \-V | \-v | \-I <interface> | \-H <address> |
++                         \-d <N> | \-p <port> | \-c | \-U <username> |
++                         \-L <privlvl> | \-l <lun> | \-m <local_address> |
++                         \-N <sec> | \-R <count> | <password\-option> |
+                          <oem-option> | <bridge-options> ]
+ 
+-<conditional-opts>  := [ <lan-options> | <lanplus-options> |
+-                         <command-options> ]
++<conditional\-opts>  := [ <lan\-options> | <lanplus\-options> |
++                         <command\-options> ]
+ .br
+ Bridging:
+ .br
+-<bridge-options>    := -t <target_address> [ -b <channel> |
+-                       [ -T <address> | -B <channel> ] ]
++<bridge\-options>    := \-t <target_address> [ \-b <channel> |
++                       [ \-T <address> | \-B <channel> ] ]
+ .br
+ 
+-Options used with -I lan:
++Options used with \-I lan:
+ .br
+-<lan-options>       := [ -A <authtype> ]
++<lan\-options>       := [ \-A <authtype> ]
+ .br
+ 
+-Options used with -I lanplus:
++Options used with \-I lanplus:
+ .br
+-<lanplus-options>   := [ -C <ciphersuite> | <key-option> ]
++<lanplus\-options>   := [ \-C <ciphersuite> | <key\-option> ]
+ .br
+ 
+ Option groups setting same value:
+ .br
+-<key-option>        := [ -k <key> | -K | -y <hex_key> | -Y ]
++<key\-option>        := [ \-k <key> | \-K | \-y <hex_key> | \-Y ]
+ .br
+-<password-option>   := [ -f <password_file> | -a | -P <password> | -E ]
++<password\-option>   := [ \-f <password_file> | \-a | \-P <password> | \-E ]
+ .br
+-<oem-option>        := [ -o <oemtype> | -g | -s ]
++<oem\-option>        := [ \-o <oemtype> | \-g | \-s ]
+ .br
+ 
+ Options used with specific command <command-options>:
+ .br
+-<options-sdr>       := [ -S <sdr_cache_file> ]
++<options\-sdr>       := [ \-S <sdr_cache_file> ]
+ .br
+-<options-sel>       := [ -O <sel_oem> ]
++<options\-sel>       := [ \-O <sel_oem> ]
+ .br
+-<options-sol>       := [ -e <sol_escape_char> ]
++<options\-sol>       := [ \-e <sol_escape_char> ]
+ 
+ 
+ .SH "DESCRIPTION"
+@@ -120,7 +120,7 @@
+ will default to NULL.
+ .TP 
+ \fB\-g\fR
+-Deprecated. Use: -o intelplus
++Deprecated. Use: \-o intelplus
+ .TP 
+ \fB\-h\fR
+ Get basic usage help from the command line.
+@@ -151,7 +151,7 @@
+ .TP 
+ \fB\-m\fR <\fIlocal_address\fP>
+ Set the local IPMB address.  The local address defaults to 0x20
+-or is auto discovered on PICMG platforms when -m is not specified.
++or is auto discovered on PICMG platforms when \-m is not specified.
+ There should be no need to change the local address for normal operation.
+ .TP 
+ \fB\-N\fR <\fIsec\fP>
+@@ -185,7 +185,7 @@
+ Command \fIhpm\fP uses fixed value of 10 retries.
+ .TP 
+ \fB\-s\fR
+-Deprecated. Use: -o supermicro
++Deprecated. Use: \-o supermicro
+ .TP 
+ \fB\-S\fR <\fIsdr_cache_file\fP>
+ Use local file for remote SDR cache.  Using a local SDR cache
+@@ -223,7 +223,7 @@
+ \fB\-y\fR <\fIhex key\fP>
+ Use supplied Kg key for IPMIv2.0 authentication. The key is expected in
+ hexadecimal format and can be used to specify keys with non-printable
+-characters. E.g. '-k PASSWORD' and '-y 50415353574F5244' are
++characters. E.g. '\-k PASSWORD' and '\-y 50415353574F5244' are
+ equivalent.
+ The default is not to use any Kg key.
+ .TP 
+@@ -1051,7 +1051,7 @@
+ \fIpower\fP <\fBxx=filename1\fR> <\fBxx=filename2\fR> \fB...\fr
+ .br
+ 
+-Display power supply informations between carrier and AMC modules.
++Display power supply information between carrier and AMC modules.
+ .TP
+ \fIall\fP <\fBxx=filename\fR> <\fBxx=filename\fR> \fB...\fr
+ .br
+@@ -1063,7 +1063,7 @@
+ .TP
+ \fIfrushow\fP <\fBxx=filename\fR>
+ .br
+-Convert a binary FRU file into human readable text format. Use -v option to get
++Convert a binary FRU file into human readable text format. Use \-v option to get
+ more display information.
+ 
+ .RE
+@@ -1081,56 +1081,56 @@
+   AMC slot B1 port 0 ==> On-Carrier Device 0 port 16
+    Matching Result
+    - From On-Carrier Device ID 0
+-    -Channel ID 11 || Lane 0: enable
+-    -Link Type: AMC.2 Ethernet
+-    -Link Type extension: 1000BASE-BX (SerDES Gigabit) Ethernet link
+-    -Link Group ID: 0 || Link Asym. Match: exact match
++    \-Channel ID 11 || Lane 0: enable
++    \-Link Type: AMC.2 Ethernet
++    \-Link Type extension: 1000BASE-BX (SerDES Gigabit) Ethernet link
++    \-Link Group ID: 0 || Link Asym. Match: exact match
+    - To AMC slot B1
+-    -Channel ID 0 || Lane 0: enable
+-    -Link Type: AMC.2 Ethernet
+-    -Link Type extension: 1000BASE-BX (SerDES Gigabit) Ethernet link
+-    -Link Group ID: 0 || Link Asym. Match: exact match
++    \-Channel ID 0 || Lane 0: enable
++    \-Link Type: AMC.2 Ethernet
++    \-Link Type extension: 1000BASE-BX (SerDES Gigabit) Ethernet link
++    \-Link Group ID: 0 || Link Asym. Match: exact match
+    *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+   AMC slot B1 port 1 ==> On-Carrier Device 0 port 12
+    Matching Result
+    - From On-Carrier Device ID 0
+-    -Channel ID 6 || Lane 0: enable
+-    -Link Type: AMC.2 Ethernet
+-    -Link Type extension: 1000BASE-BX (SerDES Gigabit) Ethernet link
+-    -Link Group ID: 0 || Link Asym. Match: exact match
++    \-Channel ID 6 || Lane 0: enable
++    \-Link Type: AMC.2 Ethernet
++    \-Link Type extension: 1000BASE-BX (SerDES Gigabit) Ethernet link
++    \-Link Group ID: 0 || Link Asym. Match: exact match
+    - To AMC slot B1
+-    -Channel ID 1 || Lane 0: enable
+-    -Link Type: AMC.2 Ethernet
+-    -Link Type extension: 1000BASE-BX (SerDES Gigabit) Ethernet link
+-    -Link Group ID: 0 || Link Asym. Match: exact match
++    \-Channel ID 1 || Lane 0: enable
++    \-Link Type: AMC.2 Ethernet
++    \-Link Type extension: 1000BASE-BX (SerDES Gigabit) Ethernet link
++    \-Link Group ID: 0 || Link Asym. Match: exact match
+    *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+  On-Carrier Device vs AMC slot A2
+   AMC slot A2 port 0 ==> On-Carrier Device 0 port 3
+    Matching Result
+    - From On-Carrier Device ID 0
+-    -Channel ID 9 || Lane 0: enable
+-    -Link Type: AMC.2 Ethernet
+-    -Link Type extension: 1000BASE-BX (SerDES Gigabit) Ethernet link
+-    -Link Group ID: 0 || Link Asym. Match: exact match
++    \-Channel ID 9 || Lane 0: enable
++    \-Link Type: AMC.2 Ethernet
++    \-Link Type extension: 1000BASE-BX (SerDES Gigabit) Ethernet link
++    \-Link Group ID: 0 || Link Asym. Match: exact match
+    - To AMC slot A2
+-    -Channel ID 0 || Lane 0: enable
+-    -Link Type: AMC.2 Ethernet
+-    -Link Type extension: 1000BASE-BX (SerDES Gigabit) Ethernet link
+-    -Link Group ID: 0 || Link Asym. Match: exact match
++    \-Channel ID 0 || Lane 0: enable
++    \-Link Type: AMC.2 Ethernet
++    \-Link Type extension: 1000BASE-BX (SerDES Gigabit) Ethernet link
++    \-Link Group ID: 0 || Link Asym. Match: exact match
+    *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+  AMC slot B1 vs AMC slot A2
+   AMC slot A2 port 2 ==> AMC slot B1 port 2
+    Matching Result
+    - From AMC slot B1
+-    -Channel ID 2 || Lane 0: enable
+-    -Link Type: AMC.3 Storage
+-    -Link Type extension: Serial Attached SCSI (SAS/SATA)
+-    -Link Group ID: 0 || Link Asym. Match: FC or SAS interface {exact match}
++    \-Channel ID 2 || Lane 0: enable
++    \-Link Type: AMC.3 Storage
++    \-Link Type extension: Serial Attached SCSI (SAS/SATA)
++    \-Link Group ID: 0 || Link Asym. Match: FC or SAS interface {exact match}
+    - To AMC slot A2
+-    -Channel ID 2 || Lane 0: enable
+-    -Link Type: AMC.3 Storage
+-    -Link Type extension: Serial Attached SCSI (SAS/SATA)
+-    -Link Group ID: 0 || Link Asym. Match: FC or SAS interface {exact match}
++    \-Channel ID 2 || Lane 0: enable
++    \-Link Type: AMC.3 Storage
++    \-Link Type extension: Serial Attached SCSI (SAS/SATA)
++    \-Link Group ID: 0 || Link Asym. Match: FC or SAS interface {exact match}
+  *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+ .TP
+ \fIunmatch\fP <\fBxx=filename\fR> <\fBxx=filename\fR> \fB...\fr
+@@ -2981,7 +2981,7 @@
+ 
+ Execute the service processor command line interface commands.
+ Without any command string, an interactive session is started
+-in the service processor command line environ ment.  If a
++in the service processor command line environment.  If a
+ command string is specified, the command string is executed
+ on the service processor and the connection is closed.
+ .TP
+@@ -3376,7 +3376,7 @@
+ The ipmitool \fIfree\fP interface utilizes the FreeIPMI libfreeipmi
+ drivers.  
+ .LP
+-You can tell ipmitool to use the FreeIPMI interface with the -I option:
++You can tell ipmitool to use the FreeIPMI interface with the \-I option:
+ .PP
+ ipmitool \fB\-I\fR \fIfree\fP <\fIcommand\fP>
+ 
+@@ -3386,7 +3386,7 @@
+ The ipmitool \fIimb\fP interface supports the Intel IMB (Intel
+ Inter-module Bus) Interface through the /dev/imb device.  
+ .LP
+-You can tell ipmitool to use the IMB interface with the -I option:
++You can tell ipmitool to use the IMB interface with the \-I option:
+ .PP
+ ipmitool \fB\-I\fR \fIimb\fP <\fIcommand\fP>
+ 

@@ -1,0 +1,27 @@
+Description: typo in source
+Author: Jörg Frings-Fürst <debian@jff-webhosting.net>
+Forwarded: https://sourceforge.net/p/ipmitool/patches/101/
+Last-Update: 2014-05-19
+---
+This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
+Index: trunk/lib/ipmi_fwum.c
+===================================================================
+--- trunk.orig/lib/ipmi_fwum.c	2014-03-28 13:36:21.000000000 +0100
++++ trunk/lib/ipmi_fwum.c	2014-05-19 14:58:48.313044838 +0200
+@@ -892,14 +892,14 @@
+ 		}
+ 		if (rc == 0) {
+ 			if ((address % 1024) == 0) {
+-				KfwumShowProgress("Writting Firmware in Flash",
++				KfwumShowProgress("Writing Firmware in Flash",
+ 						address, totalSize);
+ 			}
+ 			sequenceNumber++;
+ 		}
+ 	} while ((rc == 0) && (address < totalSize));
+ 	if (rc == 0) {
+-		KfwumShowProgress("Writting Firmware in Flash",
++		KfwumShowProgress("Writing Firmware in Flash",
+ 				100, 100);
+ 	}
+ 	return rc;

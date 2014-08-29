@@ -1,0 +1,23 @@
+Description: Correct function declarations
+Author: Jörg Frings-Fürst <debian@jff-webhosting.net>
+Bug-Debian: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=749913
+Last-Update: 2014-05-31
+---
+This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
+Index: trunk/lib/ipmi_kontronoem.c
+===================================================================
+--- trunk.orig/lib/ipmi_kontronoem.c	2014-03-28 13:36:21.000000000 +0100
++++ trunk/lib/ipmi_kontronoem.c	2014-05-31 10:25:10.583475442 +0200
+@@ -53,9 +53,9 @@
+                          uint8_t id, uint32_t offset, uint32_t length, 
+                          uint8_t *frubuf);
+ extern int write_fru_area(struct ipmi_intf * intf, struct fru_info *fru, 
+-                          unsigned char id, unsigned int soffset,  
+-                          unsigned int doffset,  unsigned int length, 
+-                          unsigned char *pFrubuf);
++                          uint8_t id, uint16_t soffset,  
++                          uint16_t doffset,  uint16_t length, 
++                          uint8_t *pFrubuf);
+ 
+ extern char * get_fru_area_str(uint8_t * data, uint32_t * offset);
+ 

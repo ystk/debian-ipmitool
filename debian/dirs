@@ -1,3 +1,1 @@
-usr/bin
-usr/sbin
-usr/share/doc/ipmitool
+usr/lib/modules-load.d/

@@ -15,6 +15,7 @@
 # Licence:      This script is public domain using the same
 #               licence as ipmitool itself.
 # Modified by:  Petter Reinholdtsen
+#               Jörg Frings-Fürst 2014-06-01
 
 set -e
 
@@ -44,6 +45,11 @@ test -r /etc/default/rcS && . /etc/default/rcS
 # Se ipmievd(8) for more info.
 IPMIEVD_OPTIONS="open daemon"
 
+#
+# requested kernelmodules
+#
+REQMODULES="ipmi_devintf ipmi_msghandler ipmi_poweroff ipmi_si ipmi_watchdog"
+
 # Read config file if it is present.
 [ -f /etc/default/$NAME ] && . /etc/default/$NAME
 
@@ -55,6 +61,15 @@ if [ -n "$IPMIEVD_OPTS" ]; then
     echo "warning: /etc/default/$NAME variable IPMIEVD_OPTS should be renamed to IPMIEVD_OPTIONS"
     IPMIEVD_OPTIONS="$IPMIEVD_OPTS"
 fi
+
+# 
+# function to load requested kernelmodules
+do_modprobe() {
+    if [ -x /sbin/modprobe -a -f /proc/modules ]
+    then
+        modprobe -q "$1" || true
+    fi
+}
 
 #
 #	Function that starts the daemon/service.
@@ -74,6 +89,11 @@ CODE=0
 
 case "$1" in
   start)
+	# load kernelmodules
+	for rmod in ${REQMODULES} 
+	do
+	    do_modprobe ${rmod} 
+	done
 	[ "$VERBOSE" != no ] && log_begin_msg "Starting $DESC" "$NAME"
 	d_start || CODE=$?
 	[ "$VERBOSE" != no ] && log_end_msg $CODE

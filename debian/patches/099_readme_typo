@@ -1,10 +1,8 @@
 ## 99_readme_typo.dpatch by dann frazier <dannf@hp.com>
 ##
 ## Typo in README. Closes: #508231
-Index: ipmitool-1.8.11/README
-===================================================================
---- ipmitool-1.8.11.orig/README	2009-02-25 20:38:52.000000000 +0000
-+++ ipmitool-1.8.11/README	2009-03-22 16:55:46.254570261 +0000
+--- a/README
++++ b/README
 @@ -24,7 +24,7 @@
  ==========
  I originally wrote ipmitool while between projects and employeed at Sun
@@ -14,11 +12,9 @@ Index: ipmitool-1.8.11/README
  It started with an idea that remote chassis power control would be a handy
  feature for my systems in the lab and from there it grew into a multi-
  purpose tool that lots of people found useful.  I decided to release it
-Index: ipmitool-1.8.11/doc/ipmitool.1
-===================================================================
---- ipmitool-1.8.11.orig/doc/ipmitool.1	2009-02-25 20:38:52.000000000 +0000
-+++ ipmitool-1.8.11/doc/ipmitool.1	2009-03-22 16:55:46.270571619 +0000
-@@ -40,7 +40,7 @@
+--- a/doc/ipmitool.1
++++ b/doc/ipmitool.1
+@@ -44,7 +44,7 @@
  IPMI management of a local system interface requires a compatible IPMI
  kernel driver to be installed and configured.  On Linux this driver is
  called \fIOpenIPMI\fP and it is included in standard distributions.

@@ -1,5 +1,8 @@
-99_readme_typo
-passwd_option
-fix_sdr_segfault
-101_fix_buf_overflow
-112_fix_CVE-2011-4339
+120-Dell-13G.patch
+115-lib_declarations.patch
+097-source_typo.patch
+098-manpage_typo.patch
+101_fix_buf_overflow.patch
+112_fix_CVE-2011-4339.patch
+099_readme_typo
+096-manpage_longlines.patch
