@@ -184,12 +184,12 @@ static void
 print_escape_seq(struct ipmi_intf *intf)
 {
 	lprintf(LOG_NOTICE,
-		"       %c.  - terminate connection\r\n"
-		"       %c^Z - suspend ipmitool\r\n"
-		"       %c^X - suspend ipmitool, but don't restore tty on restart\r\n"
-		"       %c?  - this message\r\n"
-		"       %c%c  - send the escape character by typing it twice\r\n"
-		"       (Note that escapes are only recognized immediately after newline.)\r",
+		"       %c.  - terminate connection\n"
+		"       %c^Z - suspend ipmitool\n"
+		"       %c^X - suspend ipmitool, but don't restore tty on restart\n"
+		"       %c?  - this message\n"
+		"       %c%c  - send the escape character by typing it twice\n"
+		"       (Note that escapes are only recognized immediately after newline.)",
 		intf->session->sol_escape_char,
 		intf->session->sol_escape_char,
 		intf->session->sol_escape_char,
@@ -288,24 +288,24 @@ do_inbuf_actions(struct ipmi_intf *intf, char *in_buff, int len)
 
 			switch (in_buff[i]) {
 			case '.':
-				printf("%c. [terminated ipmitool]\r\n",
+				printf("%c. [terminated ipmitool]\n",
 				       intf->session->sol_escape_char);
 				return -1;
 
 			case 'Z' - 64:
-				printf("%c^Z [suspend ipmitool]\r\n",
+				printf("%c^Z [suspend ipmitool]\n",
 				       intf->session->sol_escape_char);
 				suspend_self(1); /* Restore tty back to raw */
 				break;
 
 			case 'X' - 64:
-				printf("%c^X [suspend ipmitool]\r\n",
+				printf("%c^X [suspend ipmitool]\n",
 				       intf->session->sol_escape_char);
 				suspend_self(0); /* Don't restore to raw mode */
 				break;
 
 			case '?':
-				printf("%c? [ipmitool help]\r\n",
+				printf("%c? [ipmitool help]\n",
 				       intf->session->sol_escape_char);
 				print_escape_seq(intf);
 				break;
@@ -381,7 +381,7 @@ int
 ipmi_tsol_main(struct ipmi_intf * intf, int argc, char ** argv)
 {
 	struct pollfd fds_wait[3], fds_data_wait[3], *fds;
-	struct sockaddr_in sin, myaddr;
+	struct sockaddr_in sin, myaddr, *sa_in;
 	socklen_t mylen;
 	char *recvip = NULL;
 	char out_buff[IPMI_BUF_SIZE * 8], in_buff[IPMI_BUF_SIZE];
@@ -398,8 +398,11 @@ ipmi_tsol_main(struct ipmi_intf * intf, int argc, char ** argv)
 	}
 
 	for (i = 0; i<argc; i++) {
-		if (sscanf(argv[i], "%d.%d.%d.%d", &ip1, &ip2, &ip3, &ip4) == 4)
-			recvip = strdup(argv[i]);
+		if (sscanf(argv[i], "%d.%d.%d.%d", &ip1, &ip2, &ip3, &ip4) == 4) {
+			/* not free'd ...*/
+			/* recvip = strdup(argv[i]); */
+			recvip = argv[i];
+		} 
 		else if (sscanf(argv[i], "port=%d", &ip1) == 1)
 			port = ip1;
 		else if (sscanf(argv[i], "rows=%d", &ip1) == 1)
@@ -427,8 +430,9 @@ ipmi_tsol_main(struct ipmi_intf * intf, int argc, char ** argv)
 	sin.sin_family = AF_INET;
 	sin.sin_port = htons(port);
 
+	sa_in = (struct sockaddr_in *)&intf->session->addr;
 	result = inet_pton(AF_INET, (const char *)intf->session->hostname,
-			   &intf->session->addr.sin_addr);
+			   &sa_in->sin_addr);
 
 	if (result <= 0) {
 		struct hostent *host = gethostbyname((const char *)intf->session->hostname);
@@ -437,8 +441,15 @@ ipmi_tsol_main(struct ipmi_intf * intf, int argc, char ** argv)
 				intf->session->hostname);
 			return -1;
 		}
-		intf->session->addr.sin_family = host->h_addrtype;
-		memcpy(&intf->session->addr.sin_addr, host->h_addr, host->h_length);
+		if (host->h_addrtype != AF_INET) {
+			lprintf(LOG_ERR,
+					"Address lookup for %s failed. Got %s, expected IPv4 address.",
+					intf->session->hostname,
+					(host->h_addrtype == AF_INET6) ? "IPv6" : "Unknown");
+			return (-1);
+		}
+		sa_in->sin_family = host->h_addrtype;
+		memcpy(&sa_in->sin_addr, host->h_addr, host->h_length);
 	}
 
 	fd_socket = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
@@ -446,30 +457,38 @@ ipmi_tsol_main(struct ipmi_intf * intf, int argc, char ** argv)
 		lprintf(LOG_ERR, "Can't open port %d", port);
 		return -1;
 	}
-	bind(fd_socket, (struct sockaddr *)&sin, sizeof(sin));
+	if (-1 == bind(fd_socket, (struct sockaddr *)&sin, sizeof(sin))) {
+		lprintf(LOG_ERR, "Failed to bind socket.");
+		close(fd_socket);
+		return -1;
+	}
 
 	/*
 	 * retrieve local IP address if not supplied on command line
 	 */
 	if (recvip == NULL) {
 		result = intf->open(intf);	/* must connect first */
-		if (result < 0)
+		if (result < 0) {
+			close(fd_socket);
 			return -1;
+		}
 
 		mylen = sizeof(myaddr);
 		if (getsockname(intf->fd, (struct sockaddr *)&myaddr, &mylen) < 0) {
 			lperror(LOG_ERR, "getsockname failed");
+			close(fd_socket);
 			return -1;
 		}
 
 		recvip = inet_ntoa(myaddr.sin_addr);
 		if (recvip == NULL) {
 			lprintf(LOG_ERR, "Unable to find local IP address");
+			close(fd_socket);
 			return -1;
 		}
 	}
 
-	printf("[Starting %sSOL with receiving address %s:%d]\r\n",
+	printf("[Starting %sSOL with receiving address %s:%d]\n",
 	       read_only ? "Read-only " : "", recvip, port);
 
 	set_terminal_size(rows, cols);
@@ -482,10 +501,11 @@ ipmi_tsol_main(struct ipmi_intf * intf, int argc, char ** argv)
 	result = ipmi_tsol_start(intf, recvip, port);
         if (result < 0) {
 		lprintf(LOG_ERR, "Error starting SOL");
+		close(fd_socket);
                 return -1;
         }
 
-	printf("[SOL Session operational.  Use %c? for help]\r\n",
+	printf("[SOL Session operational.  Use %c? for help]\n",
 	       intf->session->sol_escape_char);
 
 	gettimeofday(&_start_keepalive, 0);
