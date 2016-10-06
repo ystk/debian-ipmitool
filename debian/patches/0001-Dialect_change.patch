@@ -1,0 +1,22 @@
+Description: Change Dialect to -std=gnu99
+ based in comments from dann frazier <dannf@debian.org>
+Author: Jörg Frings-Fürst <debian@jff-webhosting.net>
+Bug: 
+Bug-Debian: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=816491
+Forwarded: 
+Last-Update: 2016-03-03
+---
+This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
+Index: trunk/configure.ac
+===================================================================
+--- trunk.orig/configure.ac
++++ trunk/configure.ac
+@@ -32,7 +32,7 @@ AC_CHECK_FUNCS([alarm gethostbyname geta
+ AC_CHECK_FUNCS([memmove memset strchr strdup strerror])
+ AC_CHECK_FUNCS([getpassphrase])
+ 
+-CFLAGS="$CFLAGS -Wall -Wextra -std=c99 -pedantic -Wformat -Wformat-nonliteral"
++CFLAGS="$CFLAGS -Wall -Wextra -std=gnu99 -pedantic -Wformat -Wformat-nonliteral"
+ 
+ AM_PROG_LIBTOOL
+ LIBTOOL="$LIBTOOL --silent"

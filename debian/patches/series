@@ -1,0 +1,9 @@
+#0605-manpage_typo.patch
+#0105-typo.patch
+0100-fix_buf_overflow.patch
+0500-fix_CVE-2011-4339.patch
+#0610-readme_typo.patch
+0600-manpage_longlines.patch
+#0001-Dialect_change.patch
+0110-getpass-prototype.patch
+0115-typo.patch

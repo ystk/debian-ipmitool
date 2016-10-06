@@ -1,0 +1,56 @@
+Description: long lines in man-page
+ prevent "can't break line" warnings
+Author: Jörg Frings-Fürst <debian@jff-webhosting.net>
+Forwarded: not-needed
+Last-Update: 2014-05-20
+---
+This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
+Index: trunk/doc/ipmitool.1
+===================================================================
+--- trunk.orig/doc/ipmitool.1
++++ trunk/doc/ipmitool.1
+@@ -1035,7 +1035,7 @@ Display point to point physical connecti
+       AMC slot B2 topology:
+          Port 0 =====> On Carrier Device ID 0, Port 3
+          Port 2 =====> AMC slot B1, Port 2
+-   *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
++   *-*-*-* *-*-* *-*-* *-*-* *-*-* *-*-* *-*-*
+    From Carrier file: carrierfru
+       On Carrier Device ID 0 topology:
+          Port 0 =====> AMC slot B1, Port 4
+@@ -1091,7 +1091,7 @@ and an AMC module or between 2 AMC modul
+     \-Link Type: AMC.2 Ethernet
+     \-Link Type extension: 1000BASE-BX (SerDES Gigabit) Ethernet link
+     \-Link Group ID: 0 || Link Asym. Match: exact match
+-   *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
++   *-*-*-* *-*-* *-*-* *-*-* *-*-* *-*-* *-*-*
+   AMC slot B1 port 1 ==> On-Carrier Device 0 port 12
+    Matching Result
+    - From On-Carrier Device ID 0
+@@ -1104,7 +1104,7 @@ and an AMC module or between 2 AMC modul
+     \-Link Type: AMC.2 Ethernet
+     \-Link Type extension: 1000BASE-BX (SerDES Gigabit) Ethernet link
+     \-Link Group ID: 0 || Link Asym. Match: exact match
+-   *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
++   *-*-*-* *-*-* *-*-* *-*-* *-*-* *-*-* *-*-*
+  On-Carrier Device vs AMC slot A2
+   AMC slot A2 port 0 ==> On-Carrier Device 0 port 3
+    Matching Result
+@@ -1118,7 +1118,7 @@ and an AMC module or between 2 AMC modul
+     \-Link Type: AMC.2 Ethernet
+     \-Link Type extension: 1000BASE-BX (SerDES Gigabit) Ethernet link
+     \-Link Group ID: 0 || Link Asym. Match: exact match
+-   *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
++   *-*-*-* *-*-* *-*-* *-*-* *-*-* *-*-* *-*-*
+  AMC slot B1 vs AMC slot A2
+   AMC slot A2 port 2 ==> AMC slot B1 port 2
+    Matching Result
+@@ -1132,7 +1132,7 @@ and an AMC module or between 2 AMC modul
+     \-Link Type: AMC.3 Storage
+     \-Link Type extension: Serial Attached SCSI (SAS/SATA)
+     \-Link Group ID: 0 || Link Asym. Match: FC or SAS interface {exact match}
+- *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
++   *-*-*-* *-*-* *-*-* *-*-* *-*-* *-*-* *-*-*
+ .TP
+ \fIunmatch\fP <\fBxx=filename\fR> <\fBxx=filename\fR> \fB...\fr
+ .br

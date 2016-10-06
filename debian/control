@@ -1,0 +1,41 @@
+Source: ipmitool
+Section: utils
+Priority: optional
+Maintainer: Jörg Frings-Fürst <debian@jff-webhosting.net>
+Build-Depends:
+ debhelper (>> 9),
+ dh-autoreconf,
+ dh-systemd (>= 1.5),
+ libncurses-dev,
+ libfreeipmi-dev [!hurd-i386],
+ libreadline-dev,
+ libssl-dev
+Standards-Version: 3.9.8
+Vcs-Browser: https://anonscm.debian.org/cgit/collab-maint/ipmitool.git
+Vcs-Git: https://anonscm.debian.org/cgit/collab-maint/ipmitool.git
+Homepage: https://sourceforge.net/projects/ipmitool/
+
+Package: ipmitool
+Architecture: any
+Depends:
+ ${misc:Depends},
+ ${shlibs:Depends},
+ lsb-base
+Recommends: openipmi
+Description: utility for IPMI control with kernel driver or LAN interface (daemon)
+ A utility for managing and configuring devices that support the
+ Intelligent Platform Management Interface.  IPMI is an open standard
+ for monitoring, logging, recovery, inventory, and control of hardware
+ that is implemented independent of the main CPU, BIOS, and OS.  The
+ service processor (or Baseboard Management Controller, BMC) is the
+ brain behind platform management and its primary purpose is to handle
+ the autonomous sensor monitoring and event logging features.
+ .
+ The ipmitool program provides a simple command-line interface to this
+ BMC.  It features the ability to read the sensor data repository
+ (SDR) and print sensor values, display the contents of the System
+ Event Log (SEL), print Field Replaceable Unit (FRU) inventory
+ information, read and set LAN configuration parameters, and perform
+ remote chassis power control.
+ .
+ This package contains the daemon.

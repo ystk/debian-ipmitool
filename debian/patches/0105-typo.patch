@@ -1,0 +1,217 @@
+Description: Some source typos
+Author: Jörg Frings-Fürst <debian@jff-webhosting.net>
+Forwarded: https://sourceforge.net/p/ipmitool/bugs/417/
+Last-Update: 2016-02-20
+---
+This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
+Index: trunk/lib/ipmi_hpmfwupg.c
+===================================================================
+--- trunk.orig/lib/ipmi_hpmfwupg.c
++++ trunk/lib/ipmi_hpmfwupg.c
+@@ -2021,13 +2021,13 @@ HpmfwupgQueryRollbackStatus(struct ipmi_
+ 		memcpy(&pCtx->resp, rsp->data,
+ 				sizeof(struct HpmfwupgQueryRollbackStatusResp));
+ 		if (pCtx->resp.rollbackComp.ComponentBits.byte != 0) {
+-			/* Rollback occured */
++			/* Rollback occurred */
+ 			lprintf(LOG_NOTICE,
+-					"Rollback occured on component mask: 0x%02x",
++					"Rollback occurred on component mask: 0x%02x",
+ 					pCtx->resp.rollbackComp.ComponentBits.byte);
+ 		} else {
+ 			lprintf(LOG_NOTICE,
+-					"No Firmware rollback occured");
++					"No Firmware rollback occurred");
+ 		}
+ 	} else if (rsp->ccode == 0x81) {
+ 		lprintf(LOG_ERR,
+Index: trunk/include/ipmitool/ipmi_sel.h
+===================================================================
+--- trunk.orig/include/ipmitool/ipmi_sel.h
++++ trunk/include/ipmitool/ipmi_sel.h
+@@ -194,7 +194,7 @@ static struct ipmi_event_sensor_types oe
+    { 0xC7 , 0x01 , 0xff, IPMI_EVENT_CLASS_DISCRETE , "FWUM Status", "First Boot After Rollback(error)" },
+    { 0xC7 , 0x02 , 0xff, IPMI_EVENT_CLASS_DISCRETE , "FWUM Status", "First Boot After Errors (watchdog)" },
+    { 0xC7 , 0x03 , 0xff, IPMI_EVENT_CLASS_DISCRETE , "FWUM Status", "First Boot After Manual Rollback" },
+-   { 0xC7 , 0x08 , 0xff, IPMI_EVENT_CLASS_DISCRETE , "FWUM Status", "Firmware Watchdog Bite, reset occured" },
++   { 0xC7 , 0x08 , 0xff, IPMI_EVENT_CLASS_DISCRETE , "FWUM Status", "Firmware Watchdog Bite, reset occurred" },
+ 
+    { 0xC8 , 0x00 , 0xff, IPMI_EVENT_CLASS_DISCRETE , "Switch Mngt Software Status", "Not Loaded" },
+    { 0xC8 , 0x01 , 0xff, IPMI_EVENT_CLASS_DISCRETE , "Switch Mngt Software Status", "Initializing" },
+Index: trunk/lib/ipmi_mc.c
+===================================================================
+--- trunk.orig/lib/ipmi_mc.c
++++ trunk/lib/ipmi_mc.c
+@@ -779,7 +779,7 @@ ipmi_mc_rst_watchdog(struct ipmi_intf *
+ 	if (rsp->ccode) {
+ 		lprintf(LOG_ERR, "Reset Watchdog Timer command failed: %s",
+ 			(rsp->ccode == IPM_WATCHDOG_RESET_ERROR) ?
+-				"Attempt to reset unitialized watchdog" :
++				"Attempt to reset uninitialized watchdog" :
+ 				val2str(rsp->ccode, completion_code_vals));
+ 		return -1;
+ 	}
+Index: trunk/lib/ipmi_sunoem.c
+===================================================================
+--- trunk.orig/lib/ipmi_sunoem.c
++++ trunk/lib/ipmi_sunoem.c
+@@ -469,7 +469,7 @@ ipmi_sunoem_led_get(struct ipmi_intf * i
+ 		ledtype = str2val(argv[1], sunoem_led_type_vals);
+ 		if (ledtype == 0xFF)
+ 			lprintf(LOG_ERR,
+-					"Unknow ledtype, will use data from the SDR oem field");
++					"Unknown ledtype, will use data from the SDR oem field");
+ 	}
+ 
+ 	if (strncasecmp(argv[0], "all", 3) == 0) {
+@@ -676,7 +676,7 @@ ipmi_sunoem_led_set(struct ipmi_intf * i
+ 		ledtype = str2val(argv[2], sunoem_led_type_vals);
+ 		if (ledtype == 0xFF)
+ 			lprintf(LOG_ERR,
+-					"Unknow ledtype, will use data from the SDR oem field");
++					"Unknown ledtype, will use data from the SDR oem field");
+ 	}
+ 
+ 	if (strncasecmp(argv[0], "all", 3) == 0) {
+Index: trunk/lib/ipmi_dcmi.c
+===================================================================
+--- trunk.orig/lib/ipmi_dcmi.c
++++ trunk/lib/ipmi_dcmi.c
+@@ -671,7 +671,7 @@ chk_nm_rsp(struct ipmi_rs * rsp)
+ 	 * some issue and cannot complete the command
+ 	 */
+ 	if (rsp == NULL) {
+-		lprintf(LOG_ERR, "\n    No reponse to NM request");
++		lprintf(LOG_ERR, "\n    No response to NM request");
+ 		return 1;
+ 	}
+ 	/* if the completion code is greater than zero there was an error.  We'll
+@@ -1426,7 +1426,7 @@ ipmi_dcmi_getthermalpolicy(struct ipmi_i
+ 	/* rsp->data[0] is equal to response data byte 2 in spec */
+ 	memcpy(&val, rsp->data, sizeof (val));
+ 	printf("\n");
+-	printf("    Persistance flag is:                      %s\n",
++	printf("    Persistence flag is:                      %s\n",
+ 			((val.exceptionActions & 0x80) ? "set" : "notset"));
+ 	printf("    Exception Actions, taken if the Temperature Limit exceeded:\n");
+ 	printf("        Hard Power Off system and log event:  %s\n",
+@@ -3163,7 +3163,7 @@ ipmi_nm_thresh(struct ipmi_intf * intf,
+ 				return -1;
+ 			}
+ 			if (str2ushort(argv[0], &thresh.thresholds[i++]) < 0) {
+-				lprintf(LOG_ERR,"threshold value %d count must be a positve integer.\n", i);
++				lprintf(LOG_ERR,"threshold value %d count must be a positive integer.\n", i);
+ 				return -1;
+ 			}
+ 		default:
+Index: trunk/include/ipmitool/ipmi_sol.h
+===================================================================
+--- trunk.orig/include/ipmitool/ipmi_sol.h
++++ trunk/include/ipmitool/ipmi_sol.h
+@@ -64,7 +64,7 @@ struct sol_config_parameters {
+ 
+ 
+ /*
+- * The ACTIVATE PAYLOAD command reponse structure
++ * The ACTIVATE PAYLOAD command response structure
+  * From table 24-2 of the IPMI v2.0 spec
+  */
+ #ifdef PRAGMA_PACK
+Index: trunk/src/plugins/lanplus/lanplus.c
+===================================================================
+--- trunk.orig/src/plugins/lanplus/lanplus.c
++++ trunk/src/plugins/lanplus/lanplus.c
+@@ -606,7 +606,7 @@ ipmiv2_lan_ping(struct ipmi_intf * intf)
+  * Receive whatever comes back.  Ignore received packets that don't correspond
+  * to a request we've sent.
+  *
+- * Returns: the ipmi_rs packet describing the/a reponse we expect.
++ * Returns: the ipmi_rs packet describing the/a response we expect.
+  */
+ static struct ipmi_rs *
+ ipmi_lan_poll_single(struct ipmi_intf * intf)
+@@ -651,7 +651,7 @@ ipmi_lan_poll_single(struct ipmi_intf *
+ 	 *
+ 	 * 1) An IPMI 1.5 packet (the response to our GET CHANNEL
+ 	 *    AUTHENTICATION CAPABILITIES request)
+-	 * 2) An RMCP+ message with an IPMI reponse payload
++	 * 2) An RMCP+ message with an IPMI response payload
+ 	 * 3) AN RMCP+ open session response
+ 	 * 4) An RAKP-2 message (response to an RAKP 1 message)
+ 	 * 5) An RAKP-4 message (response to an RAKP 3 message)
+@@ -681,7 +681,7 @@ ipmi_lan_poll_single(struct ipmi_intf *
+ 	}
+ 
+ 	/*
+-	 * Handle IPMI responses (case #1 and #2) -- all IPMI reponses
++	 * Handle IPMI responses (case #1 and #2) -- all IPMI responses
+ 	 */
+ 	if (rsp->session.payloadtype == IPMI_PAYLOAD_TYPE_IPMI) {
+ 		struct ipmi_rq_entry * entry;
+@@ -863,7 +863,7 @@ ipmi_lan_poll_single(struct ipmi_intf *
+  * Receive whatever comes back.  Ignore received packets that don't correspond
+  * to a request we've sent.
+  *
+- * Returns: the ipmi_rs packet describing the/a reponse we expect.
++ * Returns: the ipmi_rs packet describing the/a response we expect.
+  */
+ static struct ipmi_rs *
+ ipmi_lan_poll_recv(struct ipmi_intf * intf)
+@@ -881,7 +881,7 @@ ipmi_lan_poll_recv(struct ipmi_intf * in
+ 
+ 
+ /*
+- * read_open_session_reponse
++ * read_open_session_response
+  *
+  * Initialize the ipmi_rs from the IPMI 2.x open session response data.
+  *
+@@ -903,7 +903,7 @@ read_open_session_response(struct ipmi_r
+ 	 /*  Message tag */
+ 	 rsp->payload.open_session_response.message_tag = rsp->data[offset];
+ 
+-	 /* RAKP reponse code */
++	 /* RAKP response code */
+ 	 rsp->payload.open_session_response.rakp_return_code = rsp->data[offset + 1];
+ 
+ 	 /* Maximum privilege level */
+@@ -970,7 +970,7 @@ read_rakp2_message(
+ 	 /*  Message tag */
+ 	 rsp->payload.rakp2_message.message_tag = rsp->data[offset];
+ 
+-	 /* RAKP reponse code */
++	 /* RAKP response code */
+ 	 rsp->payload.rakp2_message.rakp_return_code = rsp->data[offset + 1];
+ 
+ 	 /* Console session ID */
+@@ -1051,7 +1051,7 @@ read_rakp4_message(
+ 	 /*  Message tag */
+ 	 rsp->payload.rakp4_message.message_tag = rsp->data[offset];
+ 
+-	 /* RAKP reponse code */
++	 /* RAKP response code */
+ 	 rsp->payload.rakp4_message.rakp_return_code = rsp->data[offset + 1];
+ 
+ 	 /* Console session ID */
+@@ -3416,7 +3416,7 @@ ipmi_lanplus_open(struct ipmi_intf * int
+ 	if (!ipmi_oem_active(intf, "i82571spt") &&
+ 			ipmi_get_auth_capabilities_cmd(intf, &auth_cap)) {
+ 		lprintf(LOG_INFO, "Error issuing Get Channel "
+-			"Authentication Capabilies request");
++			"Authentication Capabilities request");
+ 		goto fail;
+ 	}
+ 
+Index: trunk/src/plugins/lan/lan.c
+===================================================================
+--- trunk.orig/src/plugins/lan/lan.c
++++ trunk/src/plugins/lan/lan.c
+@@ -970,7 +970,7 @@ ipmi_lan_send_cmd(struct ipmi_intf * int
+ 	// Example: We have to send command 23 and 2d.
+ 	// If we send command,seq as 23,10 and if we dont get any response it will 
+ 	// retry 4 times with 23,10 and then come out here and indicate that there is no
+-	// reponse from the remote controller and will send the next command for 
++	// response from the remote controller and will send the next command for
+ 	// ie 2d,11. And if the BMC is slow to respond and returns 23,10 then it 
+ 	// will match it in the list and will take response of command 23 as response 
+ 	// for command 2d and return success. So ideally when retries are done and 

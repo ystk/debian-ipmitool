@@ -1,0 +1,31 @@
+Description: source typos
+Author: Jörg Frings-Fürst <debian@jff-webhosting.net>
+Last-Update: 2016-05-15
+---
+This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
+Index: trunk/lib/dimm_spd.c
+===================================================================
+--- trunk.orig/lib/dimm_spd.c
++++ trunk/lib/dimm_spd.c
+@@ -798,7 +798,7 @@ const struct valstr jedec_id5_vals[] = {
+ 	{ 0xE3, "WIS Technologies" },
+ 	{ 0x64, "GateChange Technologies" },
+ 	{ 0xE5, "High Density Devices AS" },
+-	{ 0xE6, "Synopsys" },
++	{ 0xE6, "Synopsis" },
+ 	{ 0x67, "Gigaram" },
+ 	{ 0x68, "Enigma Semiconductor Inc." },
+ 	{ 0xE9, "Century Micro Inc." },
+Index: trunk/lib/ipmi_hpmfwupg.c
+===================================================================
+--- trunk.orig/lib/ipmi_hpmfwupg.c
++++ trunk/lib/ipmi_hpmfwupg.c
+@@ -1502,7 +1502,7 @@ HpmfwupgGetTargetUpgCapabilities(struct
+ 				pCtx->resp.GlobalCapabilities.bitField.autRollbackOverride ? 'y' : 'n');
+ 		lprintf(LOG_NOTICE, "IPMC degraded...........[%c]   ",
+ 				pCtx->resp.GlobalCapabilities.bitField.ipmcDegradedDurinUpg ? 'y' : 'n');
+-		lprintf(LOG_NOTICE, "Defered activation......[%c]   ",
++		lprintf(LOG_NOTICE, "Deferred activation......[%c]   ",
+ 				pCtx->resp.GlobalCapabilities.bitField.deferActivation ? 'y' : 'n');
+ 		lprintf(LOG_NOTICE, "Service affected........[%c]   ",
+ 				pCtx->resp.GlobalCapabilities.bitField.servAffectDuringUpg ? 'y' : 'n');

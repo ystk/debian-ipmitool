@@ -1,0 +1,23 @@
+Description: use necessary source dialect to ensure getpass() availability
+  getpass is a deprecated function, and building with either c99 or gnu99
+  does not ensure this function's availability.  So instead, declare
+ _DEFAULT_SOURCE so that the function remains available.
+Author: Steve Langasek <steve.langasek@ubuntu.com>
+Origin: <upstream|backport|vendor|other>, <URL, required except if Author is present>
+Bug: <URL to the upstream bug report if any, implies patch has been forwarded, optional>
+Bug-Debian: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=819340
+Last-Update: 2016-05-15
+---
+This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
+Index: trunk/lib/ipmi_main.c
+===================================================================
+--- trunk.orig/lib/ipmi_main.c
++++ trunk/lib/ipmi_main.c
+@@ -34,6 +34,7 @@
+ 	(_XOPEN_SOURCE >= 500 || \
+ 	_XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED) && \
+ 	!(_POSIX_C_SOURCE >= 200112L || _XOPEN_SOURCE >= 600)
++#define _DEFAULT_SOURCE
+ 
+ #include <stdlib.h>
+ #include <stdio.h>
