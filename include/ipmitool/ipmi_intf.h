@@ -62,34 +62,42 @@ enum LANPLUS_SESSION_STATE {
 #define IPMI_SIK_BUFFER_SIZE      20
 #define IPMI_KG_BUFFER_SIZE       21 /* key plus null byte */
 
-struct ipmi_session {
-	uint8_t hostname[64];
+struct ipmi_session_params {
+	char * hostname;
 	uint8_t username[17];
-	uint8_t authcode[IPMI_AUTHCODE_BUFFER_SIZE + 1];
-	uint8_t challenge[16];
-	uint8_t authtype;
+	uint8_t authcode_set[IPMI_AUTHCODE_BUFFER_SIZE + 1];
 	uint8_t authtype_set;
-#define IPMI_AUTHSTATUS_PER_MSG_DISABLED	0x10
-#define IPMI_AUTHSTATUS_PER_USER_DISABLED	0x08
-#define IPMI_AUTHSTATUS_NONNULL_USERS_ENABLED	0x04
-#define IPMI_AUTHSTATUS_NULL_USERS_ENABLED	0x02
-#define IPMI_AUTHSTATUS_ANONYMOUS_USERS_ENABLED	0x01
-	uint8_t authstatus;
-	uint8_t authextra;
 	uint8_t privlvl;
 	uint8_t cipher_suite_id;
 	char sol_escape_char;
 	int password;
 	int port;
-	int active;
 	int retry;
+	uint32_t timeout;
+	uint8_t kg[IPMI_KG_BUFFER_SIZE];   /* BMC key */
+	uint8_t lookupbit;
+};
 
+#define IPMI_AUTHSTATUS_PER_MSG_DISABLED	0x10
+#define IPMI_AUTHSTATUS_PER_USER_DISABLED	0x08
+#define IPMI_AUTHSTATUS_NONNULL_USERS_ENABLED	0x04
+#define IPMI_AUTHSTATUS_NULL_USERS_ENABLED	0x02
+#define IPMI_AUTHSTATUS_ANONYMOUS_USERS_ENABLED	0x01
+
+struct ipmi_session {
+	int active;
 	uint32_t session_id;
 	uint32_t in_seq;
 	uint32_t out_seq;
+
+	uint8_t authcode[IPMI_AUTHCODE_BUFFER_SIZE + 1];
+	uint8_t challenge[16];
+	uint8_t authtype;
+	uint8_t authstatus;
+	uint8_t authextra;
 	uint32_t timeout;
 
-	struct sockaddr_in addr;
+	struct sockaddr_storage addr;
 	socklen_t addrlen;
 
 	/*
@@ -106,7 +114,6 @@ struct ipmi_session {
 		uint8_t integrity_alg;
 		uint8_t crypt_alg;
 		uint8_t max_priv_level;
-		uint8_t lookupbit;
 
 		uint32_t console_id;
 		uint32_t bmc_id;
@@ -161,20 +168,29 @@ struct ipmi_intf_support {
 struct ipmi_intf {
 	char name[16];
 	char desc[128];
+	char *devfile;
 	int fd;
 	int opened;
 	int abort;
 	int noanswer;
+	int picmg_avail;
+	int vita_avail;
+	IPMI_OEM manufacturer_id;
+	int ai_family;
 
+	struct ipmi_session_params ssn_params;
 	struct ipmi_session * session;
 	struct ipmi_oem_handle * oem;
 	struct ipmi_cmd * cmdlist;
+	uint8_t	target_ipmb_addr;
 	uint32_t my_addr;
 	uint32_t target_addr;
 	uint8_t target_lun;
 	uint8_t target_channel;
 	uint32_t transit_addr;
 	uint8_t transit_channel;
+	uint16_t max_request_data_size;
+	uint16_t max_response_data_size;
 
 	uint8_t devnum;
 
@@ -186,6 +202,9 @@ struct ipmi_intf {
 	struct ipmi_rs *(*recv_sol)(struct ipmi_intf * intf);
 	struct ipmi_rs *(*send_sol)(struct ipmi_intf * intf, struct ipmi_v2_payload * payload);
 	int (*keepalive)(struct ipmi_intf * intf);
+	int (*set_my_addr)(struct ipmi_intf * intf, uint8_t addr);
+	void (*set_max_request_data_size)(struct ipmi_intf * intf, uint16_t size);
+	void (*set_max_response_data_size)(struct ipmi_intf * intf, uint16_t size);
 };
 
 struct ipmi_intf * ipmi_intf_load(char * name);
@@ -203,6 +222,10 @@ void ipmi_intf_session_set_port(struct ipmi_intf * intf, int port);
 void ipmi_intf_session_set_authtype(struct ipmi_intf * intf, uint8_t authtype);
 void ipmi_intf_session_set_timeout(struct ipmi_intf * intf, uint32_t timeout);
 void ipmi_intf_session_set_retry(struct ipmi_intf * intf, int retry);
+void ipmi_intf_session_cleanup(struct ipmi_intf *intf);
 void ipmi_cleanup(struct ipmi_intf * intf);
 
+#if defined(IPMI_INTF_LAN) || defined (IPMI_INTF_LANPLUS)
+int  ipmi_intf_socket_connect(struct ipmi_intf * intf);
+#endif
 #endif /* IPMI_INTF_H */

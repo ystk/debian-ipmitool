@@ -41,6 +41,9 @@
 #include <ipmitool/helper.h>
 #include <ipmitool/ipmi_cc.h>
 
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #define IPMI_BUF_SIZE 1024
 
@@ -236,8 +239,10 @@ struct ipmi_rs {
 #define IPMI_NETFN_APP			0x6
 #define IPMI_NETFN_FIRMWARE		0x8
 #define IPMI_NETFN_STORAGE		0xa
-#define IPMI_NETFN_TRANSPORT		0xc
+#define IPMI_NETFN_TRANSPORT	0xc
 #define IPMI_NETFN_PICMG		0x2C
+#define IPMI_NETFN_DCGRP		0x2C
+#define IPMI_NETFN_OEM		0x2E
 #define IPMI_NETFN_ISOL			0x34
 #define IPMI_NETFN_TSOL			0x30
 
@@ -246,8 +251,15 @@ struct ipmi_rs {
 
 
 /* These values are IANA numbers */
+/************************************************************************
+* Add ID String for IANA Enterprise Number of IBM & ADLINK
+* https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers
+************************************************************************/
+
 typedef enum IPMI_OEM {
      IPMI_OEM_UNKNOWN    = 0,
+     /* 2 for [IBM] */
+     IPMI_OEM_IBM_2      = 2,
      IPMI_OEM_HP         = 11,
      IPMI_OEM_SUN        = 42,
      IPMI_OEM_NOKIA      = 94,
@@ -255,15 +267,21 @@ typedef enum IPMI_OEM {
      IPMI_OEM_HITACHI_116 = 116,
      IPMI_OEM_NEC        = 119,
      IPMI_OEM_TOSHIBA    = 186,
+     IPMI_OEM_ERICSSON   = 193,
      IPMI_OEM_INTEL      = 343,
      IPMI_OEM_TATUNG     = 373,
      IPMI_OEM_HITACHI_399 = 399,
      IPMI_OEM_DELL       = 674,
      IPMI_OEM_LMC        = 2168,
      IPMI_OEM_RADISYS    = 4337,
+     IPMI_OEM_BROADCOM   = 4413,
+     /* 4769 for [IBM Corporation] */
+     IPMI_OEM_IBM_4769   = 4769,
      IPMI_OEM_MAGNUM     = 5593,
      IPMI_OEM_TYAN       = 6653,
+     IPMI_OEM_QUANTA     = 7244,
      IPMI_OEM_NEWISYS    = 9237,
+     IPMI_OEM_ADVANTECH  = 10297,
      IPMI_OEM_FUJITSU_SIEMENS = 10368,
      IPMI_OEM_AVOCENT    = 10418,
      IPMI_OEM_PEPPERCON  = 10437,
@@ -274,8 +292,13 @@ typedef enum IPMI_OEM {
      IPMI_OEM_RARITAN    = 13742,
      IPMI_OEM_KONTRON    = 15000,
      IPMI_OEM_PPS        = 16394,
+     /* 20301 for [IBM eServer X] */
+     IPMI_OEM_IBM_20301  = 20301,
      IPMI_OEM_AMI        = 20974,
-     IPMI_OEM_NOKIA_SIEMENS_NETWORKS = 28458
+     /* 24339 for [ADLINK TECHNOLOGY INC.] */
+     IPMI_OEM_ADLINK_24339 = 24339,
+     IPMI_OEM_NOKIA_SOLUTIONS_AND_NETWORKS = 28458,
+     IPMI_OEM_SUPERMICRO_47488 = 47488
 } IPMI_OEM;
 
 extern const struct valstr completion_code_vals[];

@@ -29,6 +29,9 @@
  * LIABILITY, ARISING OUT OF THE USE OF OR INABILITY TO USE THIS SOFTWARE,
  * EVEN IF SUN HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
  */
+#define _SVID_SOURCE || _BSD_SOURCE || _XOPEN_SOURCE >= 500 || \
+	_XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED || \
+	/* Since glibc 2.12: */ _POSIX_C_SOURCE >= 200809L
 
 #include <stdio.h>
 #include <unistd.h>
@@ -50,6 +53,7 @@
 
 #define EXEC_BUF_SIZE	2048
 #define EXEC_ARG_SIZE	64
+#define MAX_PORT	65535
 
 extern const struct valstr ipmi_privlvl_vals[];
 extern const struct valstr ipmi_authtype_session_vals[];
@@ -121,17 +125,20 @@ int ipmi_shell_main(struct ipmi_intf * intf, int argc, char ** argv)
 	while ((pbuf = (char *)readline(RL_PROMPT)) != NULL) {
 		if (strlen(pbuf) == 0) {
 			free(pbuf);
+			pbuf = NULL;
 			continue;
 		}
 		if (strncmp(pbuf, "quit", 4) == 0 ||
 		    strncmp(pbuf, "exit", 4) == 0) {
 			free(pbuf);
+			pbuf = NULL;
 			return 0;
 		}
 		if (strncmp(pbuf, "help", 4) == 0 ||
 		    strncmp(pbuf, "?", 1) == 0) {
 			ipmi_cmd_print(intf->cmdlist);
 			free(pbuf);
+			pbuf = NULL;
 			continue;
 		}
 
@@ -143,7 +150,7 @@ int ipmi_shell_main(struct ipmi_intf * intf, int argc, char ** argv)
 		while (*ptr != '\0') {
 			if (*ptr == '"') {
 				ptr++;
-				while (*ptr != '"') {
+				while (*ptr != '"' && *ptr != '\0') {
 					if (isspace((int)*ptr))
 						*ptr = '~';
 					ptr++;
@@ -151,7 +158,7 @@ int ipmi_shell_main(struct ipmi_intf * intf, int argc, char ** argv)
 			}
 			if (*ptr == '\'') {
 				ptr++;
-				while (*ptr != '\'') {
+				while (*ptr != '\'' && *ptr != '\0') {
 					if (isspace((int)*ptr))
 						*ptr = '~';
 					ptr++;
@@ -171,7 +178,7 @@ int ipmi_shell_main(struct ipmi_intf * intf, int argc, char ** argv)
 			ptr = *ap;
 			if (*ptr == '\'') {
 				memmove(ptr, ptr+1, strlen(ptr));
-				while (*ptr != '\'') {
+				while (*ptr != '\'' && *ptr != '\0') {
 					if (*ptr == '~')
 						*ptr = ' ';
 					ptr++;
@@ -180,7 +187,7 @@ int ipmi_shell_main(struct ipmi_intf * intf, int argc, char ** argv)
 			}
 			if (*ptr == '"') {
 				memmove(ptr, ptr+1, strlen(ptr));
-				while (*ptr != '"') {
+				while (*ptr != '"' && *ptr != '\0') {
 					if (*ptr == '~')
 						*ptr = ' ';
 					ptr++;
@@ -201,6 +208,7 @@ int ipmi_shell_main(struct ipmi_intf * intf, int argc, char ** argv)
 					  &(__argv[1]));
 
 		free(pbuf);
+		pbuf = NULL;
 	}
 	printf("\n");
 	return rc;
@@ -256,11 +264,29 @@ int ipmi_set_main(struct ipmi_intf * intf, int argc, char ** argv)
 
 	/* these options can have no arguments */
 	if (strncmp(argv[0], "verbose", 7) == 0) {
-		verbose = (argc > 1) ? atoi(argv[1]) : verbose+1;
+		if (argc > 1) {
+			if (str2int(argv[1], &verbose) != 0) {
+				lprintf(LOG_ERR,
+						"Given verbose '%s' argument is invalid.",
+						argv[1]);
+				return (-1);
+			}
+		} else {
+			verbose = verbose + 1;
+		}
 		return 0;
 	}
 	if (strncmp(argv[0], "csv", 3) == 0) {
-		csv_output = (argc > 1) ? atoi(argv[1]) : 1;
+		if (argc > 1) {
+			if (str2int(argv[1], &csv_output) != 0) {
+				lprintf(LOG_ERR,
+						"Given csv '%s' argument is invalid.",
+						argv[1]);
+				return (-1);
+			}
+		} else {
+			csv_output = 1;
+		}
 		return 0;
 	}
 
@@ -273,51 +299,99 @@ int ipmi_set_main(struct ipmi_intf * intf, int argc, char ** argv)
 	if (strncmp(argv[0], "host", 4) == 0 ||
 	    strncmp(argv[0], "hostname", 8) == 0) {
 		ipmi_intf_session_set_hostname(intf, argv[1]);
-		printf("Set session hostname to %s\n", intf->session->hostname);
+		if (intf->session == NULL) {
+			lprintf(LOG_ERR, "Failed to set session hostname.");
+			return (-1);
+		}
+		printf("Set session hostname to %s\n",
+				intf->ssn_params.hostname);
 	}
 	else if (strncmp(argv[0], "user", 4) == 0 ||
 		 strncmp(argv[0], "username", 8) == 0) {
 		ipmi_intf_session_set_username(intf, argv[1]);
-		printf("Set session username to %s\n", intf->session->username);
+		if (intf->session == NULL) {
+			lprintf(LOG_ERR, "Failed to set session username.");
+			return (-1);
+		}
+		printf("Set session username to %s\n",
+				intf->ssn_params.username);
 	}
 	else if (strncmp(argv[0], "pass", 4) == 0 ||
 		 strncmp(argv[0], "password", 8) == 0) {
 		ipmi_intf_session_set_password(intf, argv[1]);
+		if (intf->session == NULL) {
+			lprintf(LOG_ERR, "Failed to set session password.");
+			return (-1);
+		}
 		printf("Set session password\n");
 	}
 	else if (strncmp(argv[0], "authtype", 8) == 0) {
 		int authtype;
 		authtype = str2val(argv[1], ipmi_authtype_session_vals);
 		if (authtype == 0xFF) {
-			lprintf(LOG_ERR, "Invalid authtype: %s", argv[1]);
-		} else {
-			ipmi_intf_session_set_authtype(intf, authtype);
-			printf("Set session authtype to %s\n",
-			       val2str(intf->session->authtype_set, ipmi_authtype_session_vals));
+			lprintf(LOG_ERR, "Invalid authtype: %s",
+					argv[1]);
+			return (-1);
 		}
+		ipmi_intf_session_set_authtype(intf, authtype);
+		if (intf->session == NULL) {
+			lprintf(LOG_ERR, "Failed to set session authtype.");
+			return (-1);
+		}
+		printf("Set session authtype to %s\n",
+		       val2str(intf->ssn_params.authtype_set,
+				   ipmi_authtype_session_vals));
 	}
 	else if (strncmp(argv[0], "privlvl", 7) == 0) {
 		int privlvl;
 		privlvl = str2val(argv[1], ipmi_privlvl_vals);
 		if (privlvl == 0xFF) {
-			lprintf(LOG_ERR, "Invalid privilege level: %s", argv[1]);
-		} else {
-			ipmi_intf_session_set_privlvl(intf, privlvl);
-			printf("Set session privilege level to %s\n",
-			       val2str(intf->session->privlvl, ipmi_privlvl_vals));
+			lprintf(LOG_ERR, "Invalid privilege level: %s",
+					argv[1]);
+			return (-1);
 		}
+		ipmi_intf_session_set_privlvl(intf, privlvl);
+		if (intf->session == NULL) {
+			lprintf(LOG_ERR,
+					"Failed to set session privilege level.");
+			return (-1);
+		}
+		printf("Set session privilege level to %s\n",
+		       val2str(intf->ssn_params.privlvl,
+				   ipmi_privlvl_vals));
 	}
 	else if (strncmp(argv[0], "port", 4) == 0) {
-		int port = atoi(argv[1]);
+		int port = 0;
+		if (str2int(argv[1], &port) != 0 || port > MAX_PORT) {
+			lprintf(LOG_ERR, "Given port '%s' is invalid.",
+					argv[1]);
+			return (-1);
+		}
 		ipmi_intf_session_set_port(intf, port);
-		printf("Set session port to %d\n", intf->session->port);
+		if (intf->session == NULL) {
+			lprintf(LOG_ERR, "Failed to set session port.");
+			return (-1);
+		}
+		printf("Set session port to %d\n", intf->ssn_params.port);
 	}
 	else if (strncmp(argv[0], "localaddr", 9) == 0) {
-		intf->my_addr = (uint8_t)strtol(argv[1], NULL, 0);
+		uint8_t my_addr = 0;
+		if (str2uchar(argv[1], &my_addr) != 0) {
+			lprintf(LOG_ERR, "Given localaddr '%s' is invalid.",
+					argv[1]);
+			return (-1);
+		}
+		intf->my_addr = my_addr;
 		printf("Set local IPMB address to 0x%02x\n", intf->my_addr);
 	}
 	else if (strncmp(argv[0], "targetaddr", 10) == 0) {
-		intf->target_addr = (uint8_t)strtol(argv[1], NULL, 0);
+		uint8_t target_addr = 0;
+		if (str2uchar(argv[1], &target_addr) != 0) {
+			lprintf(LOG_ERR, "Given targetaddr '%s' is invalid.",
+					argv[1]);
+			return (-1);
+		}
+		intf->target_addr = target_addr;
 		printf("Set remote IPMB address to 0x%02x\n", intf->target_addr);
 	}
 	else {
@@ -362,7 +436,7 @@ int ipmi_exec_main(struct ipmi_intf * intf, int argc, char ** argv)
 		while (*ptr != '\0') {
 			if (*ptr == '"') {
 				ptr++;
-				while (*ptr != '"') {
+				while (*ptr != '"' && *ptr != '\0') {
 					if (isspace((int)*ptr))
 						*ptr = '~';
 					ptr++;
@@ -370,7 +444,7 @@ int ipmi_exec_main(struct ipmi_intf * intf, int argc, char ** argv)
 			}
 			if (*ptr == '\'') {
 				ptr++;
-				while (*ptr != '\'') {
+				while (*ptr != '\'' && *ptr != '\0') {
 					if (isspace((int)*ptr))
 						*ptr = '~';
 					ptr++;
@@ -396,12 +470,16 @@ int ipmi_exec_main(struct ipmi_intf * intf, int argc, char ** argv)
 				__argv[__argc++] = strdup(tok);
 				if (__argv[__argc-1] == NULL) {
 					lprintf(LOG_ERR, "ipmitool: malloc failure");
+					if (fp) {
+						fclose(fp);
+						fp = NULL;
+					}
 					return -1;
 				}
 				tmp = __argv[__argc-1];
 				if (*tmp == '\'') {
 					memmove(tmp, tmp+1, strlen(tmp));
-					while (*tmp != '\'') {
+					while (*tmp != '\'' && *tmp != '\0') {
 						if (*tmp == '~')
 							*tmp = ' ';
 						tmp++;
@@ -410,7 +488,7 @@ int ipmi_exec_main(struct ipmi_intf * intf, int argc, char ** argv)
 				}
 				if (*tmp == '"') {
 					memmove(tmp, tmp+1, strlen(tmp));
-					while (*tmp != '"') {
+					while (*tmp != '"' && *tmp != '\0') {
 						if (*tmp == '~')
 							*tmp = ' ';
 						tmp++;

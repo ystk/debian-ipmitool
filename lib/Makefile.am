@@ -28,7 +28,8 @@
 # LIABILITY, ARISING OUT OF THE USE OF OR INABILITY TO USE THIS SOFTWARE,
 # EVEN IF SUN HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
 
-INCLUDES			= -I$(top_srcdir)/include
+AUTOMAKE_OPTIONS		= subdir-objects
+AM_CPPFLAGS			= -I$(top_srcdir)/include
 MAINTAINERCLEANFILES		= Makefile.in
 
 noinst_LTLIBRARIES		= libipmitool.la
@@ -38,7 +39,9 @@ libipmitool_la_SOURCES	= helper.c ipmi_sdr.c ipmi_sel.c ipmi_sol.c ipmi_pef.c \
 				  ipmi_session.c ipmi_strings.c ipmi_user.c ipmi_raw.c             \
 				  ipmi_oem.c ipmi_isol.c ipmi_sunoem.c ipmi_fwum.c ipmi_picmg.c    \
 				  ipmi_main.c ipmi_tsol.c ipmi_firewall.c ipmi_kontronoem.c        \
-				  ipmi_hpmfwupg.c ipmi_sdradd.c ipmi_ekanalyzer.c ipmi_gendev.c
+				  ipmi_hpmfwupg.c ipmi_sdradd.c ipmi_ekanalyzer.c ipmi_gendev.c    \
+				  ipmi_ime.c ipmi_delloem.c ipmi_dcmi.c hpm2.c ipmi_vita.c \
+				  ../src/plugins/lan/md5.c ../src/plugins/lan/md5.h
 
 libipmitool_la_LDFLAGS		= -export-dynamic
 libipmitool_la_LIBADD		= -lm

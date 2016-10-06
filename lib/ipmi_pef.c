@@ -34,6 +34,7 @@
 #include <math.h>
 #include <time.h>
 
+#include <ipmitool/bswap.h>
 #include <ipmitool/helper.h>
 #include <ipmitool/log.h>
 #include <ipmitool/ipmi.h>
@@ -189,15 +190,17 @@ ipmi_pef_msg_exchange(struct ipmi_intf * intf, struct ipmi_rq * req, char * txt)
 	// common IPMItool rqst/resp handling
 	*/
 	struct ipmi_rs * rsp = intf->sendrecv(intf, req);
-	if (!rsp)
+	if (!rsp) {
 		return(NULL);
-	if (rsp->ccode) {
-		lprintf(LOG_ERR, " **Error %x in '%s' command",
-			rsp ? rsp->ccode : 0, txt);
+	} else if (rsp->ccode == 0x80)	{
+		return(NULL);   /* Do not output error, just unsupported parameters */
+	} else if (rsp->ccode) {
+		lprintf(LOG_ERR, " **Error %x in '%s' command", rsp->ccode, txt);
 		return(NULL);
 	}
-	if (verbose > 2)
+	if (verbose > 2) {
 		printbuf(rsp->data, rsp->data_len, txt);
+	}
 	return(rsp);
 }
 
@@ -264,7 +267,7 @@ ipmi_pef_print_lan_dest(struct ipmi_intf * intf, uint8_t ch, uint8_t dest)
 	struct pef_lan_cfgparm_dest_type * ptype;
 	struct pef_lan_cfgparm_dest_info * pinfo;
 	char buf[32];
-	uint8_t tbl_size, dsttype, timeout, retries;
+	uint8_t dsttype, timeout, retries;
 
 	memset(&lsel, 0, sizeof(lsel));
 	lsel.id = PEF_LAN_CFGPARM_ID_DEST_COUNT;
@@ -280,9 +283,6 @@ ipmi_pef_print_lan_dest(struct ipmi_intf * intf, uint8_t ch, uint8_t dest)
 			"Alert destination count");
 		return;
 	}
-	tbl_size = (rsp->data[1] & PEF_LAN_DEST_TABLE_SIZE_MASK);
-	//if (tbl_size == 0 || dest == 0)	/* LAN alerting not supported */
-	//	return;
 
 	lsel.id = PEF_LAN_CFGPARM_ID_DESTTYPE;
 	lsel.set = dest;
@@ -560,7 +560,11 @@ ipmi_pef_print_event_info(struct pef_cfgparm_filter_table_entry * pef, char * bu
 		p = strchr(buf, '\0');
 		for (i=0; i<PEF_B2S_GENERIC_ER_ENTRIES; i++) {
 			if (offmask & 1) {
-				sprintf(p, ",%s", ipmi_pef_bit_desc(pef_b2s_generic_ER[t-1], i));
+				if ((t-1) >= PEF_B2S_GENERIC_ER_ENTRIES) {
+					sprintf(p, ", Unrecognized event trigger");
+				} else {
+					sprintf(p, ",%s", ipmi_pef_bit_desc(pef_b2s_generic_ER[t-1], i));
+				}
 				p = strchr(p, '\0');
 			}
 			offmask >>= 1;
@@ -660,13 +664,19 @@ ipmi_pef_list_policies(struct ipmi_intf * intf)
 	*/
 	struct ipmi_rs * rsp;
 	struct ipmi_rq req;
-	struct pef_cfgparm_policy_table_entry * ptbl, * ptmp;
+	struct pef_cfgparm_policy_table_entry * ptbl = NULL;
+	struct pef_cfgparm_policy_table_entry * ptmp = NULL;
 	uint32_t i;
 	uint8_t wrk, ch, medium, tbl_size;
 
 	tbl_size = ipmi_pef_get_policy_table(intf, &ptbl);
-	if (!tbl_size)
+	if (!tbl_size) {
+		if (ptbl != NULL) {
+			free(ptbl);
+			ptbl = NULL;
+		}
 		return;
+	}
 	memset(&req, 0, sizeof(req));
 	req.msg.netfn = IPMI_NETFN_APP;
 	req.msg.cmd = IPMI_CMD_GET_CHANNEL_INFO;
@@ -719,6 +729,7 @@ ipmi_pef_list_policies(struct ipmi_intf * intf)
 		}
 	}
 	free(ptbl);
+	ptbl = NULL;
 }
 
 static void
@@ -789,12 +800,15 @@ ipmi_pef_get_info(struct ipmi_intf * intf)
 	struct ipmi_rq req;
 	struct pef_capabilities * pcap;
 	struct pef_cfgparm_selector psel;
-	struct pef_cfgparm_policy_table_entry * ptbl;
+	struct pef_cfgparm_policy_table_entry * ptbl = NULL;
 	uint8_t * uid;
 	uint8_t actions, tbl_size;
 
-	if ((tbl_size = ipmi_pef_get_policy_table(intf, &ptbl)) > 0)
+	tbl_size = ipmi_pef_get_policy_table(intf, &ptbl);
+	if (ptbl != NULL) {
 		free(ptbl);
+		ptbl = NULL;
+	}
 
 	memset(&req, 0, sizeof(req));
 	req.msg.netfn = IPMI_NETFN_SE;
@@ -803,6 +817,7 @@ ipmi_pef_get_info(struct ipmi_intf * intf)
 	if (!rsp)
 		return;
 	pcap = (struct pef_capabilities *)rsp->data;
+
 	ipmi_pef_print_1xd("Version", pcap->version);
 	ipmi_pef_print_dec("PEF table size", pcap->tblsize);
 	ipmi_pef_print_dec("Alert policy table size", tbl_size);

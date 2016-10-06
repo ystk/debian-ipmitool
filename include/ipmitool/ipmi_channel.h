@@ -40,6 +40,7 @@
 
 
 #define IPMI_GET_CHANNEL_AUTH_CAP      0x38
+#define IPMI_SET_CHANNEL_ACCESS        0x40
 #define IPMI_GET_CHANNEL_ACCESS        0x41
 #define IPMI_GET_CHANNEL_INFO          0x42
 #define IPMI_SET_USER_ACCESS           0x43
@@ -49,11 +50,40 @@
 #define IPMI_SET_USER_PASSWORD         0x47
 #define IPMI_GET_CHANNEL_CIPHER_SUITES 0x54
 
+/* These are for channel_info_t.session_support */
+#define IPMI_CHANNEL_SESSION_LESS 0x00
+#define IPMI_CHANNEL_SESSION_SINGLE 0x40
+#define IPMI_CHANNEL_SESSION_MULTI 0x80
+#define IPMI_CHANNEL_SESSION_BASED 0xC0
+
+/* (22.24) Get Channel Info */
+struct channel_info_t {
+	uint8_t channel;
+	uint8_t medium;
+	uint8_t protocol;
+	uint8_t session_support;
+	uint8_t active_sessions;
+	uint8_t vendor_id[3];
+	uint8_t aux_info[2];
+};
+
+/* (22.23) Get Channel Access */
+struct channel_access_t {
+	uint8_t access_mode;
+	uint8_t alerting;
+	uint8_t channel;
+	uint8_t per_message_auth;
+	uint8_t privilege_limit;
+	uint8_t user_level_auth;
+};
 
 /*
  * The Get Authentication Capabilities response structure
  * From table 22-15 of the IPMI v2.0 spec
  */
+#ifdef HAVE_PRAGMA_PACK
+#pragma pack(1)
+#endif
 struct get_channel_auth_cap_rsp {
 	uint8_t channel_number;
 #if WORDS_BIGENDIAN
@@ -84,141 +114,26 @@ struct get_channel_auth_cap_rsp {
 #endif
 #if WORDS_BIGENDIAN
 	uint8_t __reserved3        : 6;
-	uint8_t ipmiv15_support    : 1; /* channel supports IPMI v1.5 connections */
 	uint8_t ipmiv20_support    : 1; /* channel supports IPMI v2.0 connections */
+	uint8_t ipmiv15_support    : 1; /* channel supports IPMI v1.5 connections */
 #else
-	uint8_t ipmiv20_support    : 1; /* channel supports IPMI v2.0 connections */
 	uint8_t ipmiv15_support    : 1; /* channel supports IPMI v1.5 connections */
+	uint8_t ipmiv20_support    : 1; /* channel supports IPMI v2.0 connections */
 	uint8_t __reserved3        : 6;
 #endif
 	uint8_t oem_id[3];    /* IANA enterprise number for auth type */
 	uint8_t oem_aux_data; /* Additional OEM specific data for oem auths */
-} __attribute__ ((packed));
-
-
-
-/*
- * The Get Channel Info response structure
- * From table 22-29 of the IPMI v2.0 spec
- */
-struct get_channel_info_rsp {
-#if WORDS_BIGENDIAN
-	uint8_t __reserved1       : 4; 
-	uint8_t channel_number    : 4; /* channel number */
-#else
-	uint8_t channel_number    : 4; /* channel number */
-	uint8_t __reserved1       : 4; 
+} ATTRIBUTE_PACKING;
+#ifdef HAVE_PRAGMA_PACK
+#pragma pack(0)
 #endif
-#if WORDS_BIGENDIAN
-	uint8_t __reserved2       : 1;
-	uint8_t channel_medium    : 7; /* Channel medium type per table 6-3 */
-#else
-	uint8_t channel_medium    : 7; /* Channel medium type per table 6-3 */
-	uint8_t __reserved2       : 1;
-#endif
-#if WORDS_BIGENDIAN
-	uint8_t __reserved3       : 3;
-	uint8_t channel_protocol  : 5; /* Channel protocol per table 6-2 */
-#else
-	uint8_t channel_protocol  : 5; /* Channel protocol per table 6-2 */
-	uint8_t __reserved3       : 3;
-#endif
-#if WORDS_BIGENDIAN
-	uint8_t session_support   : 2; /* Description of session support */
-	uint8_t active_sessions   : 6; /* Count of active sessions */
-#else
-	uint8_t active_sessions   : 6; /* Count of active sessions */
-	uint8_t session_support   : 2; /* Description of session support */
-#endif
-	uint8_t vendor_id[3]; /* For OEM that specified the protocol */
-	uint8_t aux_info[2];  /* Not used*/
-} __attribute__ ((packed));
 
-
-
-/*
- * The Get Channel Access response structure
- * From table 22-28 of the IPMI v2.0 spec
- */
-struct get_channel_access_rsp {
-#if WORDS_BIGENDIAN
-	uint8_t __reserved1        : 2;
-	uint8_t alerting           : 1;
-	uint8_t per_message_auth   : 1;
-	uint8_t user_level_auth    : 1;
-	uint8_t access_mode        : 3;
-#else
-	uint8_t access_mode        : 3;
-	uint8_t user_level_auth    : 1;
-	uint8_t per_message_auth   : 1;
-	uint8_t alerting           : 1;
-	uint8_t __reserved1        : 2;
-#endif
-#if WORDS_BIGENDIAN
-	uint8_t __reserved2        : 4;
-	uint8_t channel_priv_limit : 4; /* Channel privilege level limit */
-#else
-	uint8_t channel_priv_limit : 4; /* Channel privilege level limit */
-	uint8_t __reserved2        : 4;
-#endif
-} __attribute__ ((packed));
-
-
-struct get_user_access_rsp {
-#if WORDS_BIGENDIAN
-	uint8_t __reserved1        : 2;
-	uint8_t max_user_ids       : 6;
-	uint8_t __reserved2        : 2;
-	uint8_t enabled_user_ids   : 6;
-	uint8_t __reserved3        : 2;
-	uint8_t fixed_user_ids     : 6;
-	uint8_t __reserved4        : 1;
-	uint8_t callin_callback    : 1;
-	uint8_t link_auth          : 1;
-	uint8_t ipmi_messaging     : 1;
-	uint8_t privilege_limit    : 4;
-#else
-	uint8_t max_user_ids       : 6;
-	uint8_t __reserved1        : 2;
-	uint8_t enabled_user_ids   : 6;
-	uint8_t __reserved2        : 2;
-	uint8_t fixed_user_ids     : 6;
-	uint8_t __reserved3        : 2;
-	uint8_t privilege_limit    : 4;
-	uint8_t ipmi_messaging     : 1;
-	uint8_t link_auth          : 1;
-	uint8_t callin_callback    : 1;
-	uint8_t __reserved4        : 1;
-#endif
-} __attribute__ ((packed));
-
-struct set_user_access_data {
-#if WORDS_BIGENDIAN
-	uint8_t change_bits        : 1;
-	uint8_t callin_callback    : 1;
-	uint8_t link_auth          : 1;
-	uint8_t ipmi_messaging     : 1;
-	uint8_t channel            : 4;
-	uint8_t __reserved1        : 2;
-	uint8_t user_id            : 6;
-	uint8_t __reserved2        : 4;
-	uint8_t privilege_limit    : 4;
-	uint8_t __reserved3        : 4;
-	uint8_t session_limit      : 4;
-#else
-	uint8_t channel            : 4;
-	uint8_t ipmi_messaging     : 1;
-	uint8_t link_auth          : 1;
-	uint8_t callin_callback    : 1;
-	uint8_t change_bits        : 1;
-	uint8_t user_id            : 6;
-	uint8_t __reserved1        : 2;
-	uint8_t privilege_limit    : 4;
-	uint8_t __reserved2        : 4;
-	uint8_t session_limit      : 4;
-	uint8_t __reserved3        : 4;
-#endif
-} __attribute__ ((packed));
+int _ipmi_get_channel_access(struct ipmi_intf *intf,
+		struct channel_access_t *channel_access,
+		uint8_t get_volatile_settings);
+int _ipmi_set_channel_access(struct ipmi_intf *intf,
+		struct channel_access_t channel_access, uint8_t access_option,
+		uint8_t privilege_option);
 
 uint8_t ipmi_get_channel_medium(struct ipmi_intf * intf, uint8_t channel);
 uint8_t ipmi_current_channel_medium(struct ipmi_intf * intf);

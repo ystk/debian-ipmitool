@@ -1,9 +1,9 @@
 /*M*
 //  PVCS:
 //      $Workfile:   imbapi.c  $
-//      $Revision: 1.2 $
+//      $Revision: 1.5 $
 //      $Modtime:   06 Aug 2001 13:16:56  $
-//      $Author: iceblink $
+//      $Author: stybla $
 //
 //  Purpose:    This file contains the entry point that opens the IMB device in
 //              order to issue the  IMB driver API related IOCTLs.
@@ -39,6 +39,21 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *----------------------------------------------------------------------*/
 /*
  * $Log: imbapi.c,v $
+ * Revision 1.5  2013/07/22 08:35:23  stybla
+ * ID: 65 - Fixes for configure.in for cross compilation
+ *
+ * 'src/plugins/imb/imbapi.c' - don't cast NULL to int, ever!!!
+ *
+ * Revision 1.4  2013/07/21 11:33:57  stybla
+ * ID: 65 - Fixes for configure.in for cross compilation
+ *
+ * NULL should never be cast to an int.
+ *
+ * Commit for Dan Gora
+ *
+ * Revision 1.3  2013/01/18 12:46:52  ledva
+ * 3600962 descriptor leaks
+ *
  * Revision 1.2  2004/08/31 23:52:58  iceblink
  * fix lots of little errors that show up with -Werror -Wall
  *
@@ -82,6 +97,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string.h>
 #endif
 #include "imbapi.h"
+#include <sys/socket.h>
 
 #ifdef SCO_UW
 #define NO_MACRO_ARGS  1
@@ -89,7 +105,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define IMB_DEVICE "/dev/instru/mismic"
 #else
 #define IMB_DEVICE "/dev/imb"
-#define PAGESIZE EXEC_PAGESIZE
+#endif
+
+#if !defined(PAGESIZE) && defined(PAGE_SIZE)
+#  define PAGESIZE PAGE_SIZE
+#endif
+
+#if !defined(_SC_PAGESIZE) && defined(_SC_PAGE_SIZE)
+#  define _SC_PAGESIZE _SC_PAGE_SIZE
 #endif
 
 /*Just to make the DEBUG code cleaner.*/
@@ -270,6 +293,7 @@ int open_imb(void)
 			{
 				printf("%s: SendTimedImbpRequest error. Ret = %d CC = 0x%X\n",
 					__FUNCTION__, my_ret_code, completionCode);
+					close(hDevice1);
 					hDevice1 = 0;
 					return (0);
 			}
@@ -526,7 +550,7 @@ SendTimedI2cRequest (
 	if( status != TRUE ) {
 		DWORD error;
 		error = GetLastError();
-		return ACCESN_ERROR;
+		return error;
 	}
 	if( respLength == 0 ) {
 		return ACCESN_ERROR;
@@ -1115,7 +1139,7 @@ SendTimedImbpRequest (
 	if( status != TRUE ) {
 		DWORD error;
 		error = GetLastError();
-		return ACCESN_ERROR;
+		return error;
 	}
 	if( respLength == 0 ) {
 		return ACCESN_ERROR;
@@ -1192,7 +1216,7 @@ SendAsyncImbpRequest (
 	if( status != TRUE ) {
 		DWORD error;
 		error = GetLastError();
-		return ACCESN_ERROR;
+		return error;
 	}
 	if( respLength != 2 ) {
 		return ACCESN_ERROR;
@@ -1905,7 +1929,7 @@ MapPhysicalMemory (
 	BOOL                 status;
 	PHYSICAL_MEMORY_INFO pmi;
    
-	if ( startAddress == (int) NULL || addressLength <= 0 )
+	if (startAddress == 0 || addressLength <= 0)
 		return ACCESN_OUT_OF_RANGE;
 
 	pmi.InterfaceType       = Internal;
@@ -1965,9 +1989,19 @@ MapPhysicalMemory(int startAddress,int addressLength, int *virtualAddress )
 	unsigned int 		length = addressLength;
 	off_t 				startpAddress = (off_t)startAddress;
 	unsigned int 		diff;
-	caddr_t 			startvAddress;
+	char 				*startvAddress;
+#if defined(PAGESIZE)
+	long int pagesize = PAGESIZE;
+#elif defined(_SC_PAGESIZE)
+	long int pagesize = sysconf(_SC_PAGESIZE);
+	if (pagesize < 1) {
+		perror("Invalid pagesize");
+	}
+#else
+#  error PAGESIZE unsupported
+#endif
 
-	if ((startAddress == (int) NULL) || (addressLength <= 0))
+	if ((startAddress == 0) || (addressLength <= 0))
 		return ACCESN_ERROR;
 
 	if ( (fd = open("/dev/mem", O_RDONLY)) < 0) {
@@ -1980,17 +2014,17 @@ MapPhysicalMemory(int startAddress,int addressLength, int *virtualAddress )
 	}
 
 	/* aliging the offset to a page boundary and adjusting the length */
-	diff = (int)startpAddress % PAGESIZE;
+	diff = (int)startpAddress % pagesize;
 	startpAddress -= diff;
 	length += diff;
 
-	if ( (startvAddress = mmap(	(caddr_t)0, 
+	if ( (startvAddress = mmap(0, 
 								length, 
 								PROT_READ, 
 								MAP_SHARED, 
 								fd, 
 								startpAddress
-								) ) == (caddr_t)-1)
+								) ) == MAP_FAILED)
 	{
 		char buf[128];
 
@@ -2016,6 +2050,7 @@ MapPhysicalMemory(int startAddress,int addressLength, int *virtualAddress )
 #endif /*LINUX_DEBUG_MAX */
 
 	*virtualAddress = (long)(startvAddress + diff);
+	close(fd);
 	return ACCESN_OK;
 }
 
@@ -2023,9 +2058,19 @@ ACCESN_STATUS
 UnmapPhysicalMemory( int virtualAddress, int Length )
 {
 	unsigned int diff = 0;
+#if defined(PAGESIZE)
+	long int pagesize = PAGESIZE;
+#elif defined(_SC_PAGESIZE)
+	long int pagesize = sysconf(_SC_PAGESIZE);
+	if (pagesize < 1) {
+		perror("Invalid pagesize");
+	}
+#else
+#  error PAGESIZE unsupported
+#endif
 
 	/* page align the virtual address and adjust length accordingly  */
-	diff = 	((unsigned int) virtualAddress) % PAGESIZE;
+	diff = 	((unsigned int) virtualAddress) % pagesize;
 	virtualAddress -= diff;
 	Length += diff;
 #ifndef NO_MACRO_ARGS

@@ -43,6 +43,7 @@
 #include <ipmitool/ipmi.h>
 #include <ipmitool/ipmi_intf.h>
 #include <ipmitool/helper.h>
+#include <ipmitool/ipmi_sel.h>
 
 #include "imbapi.h"
 
@@ -63,6 +64,7 @@ static int ipmi_imb_open(struct ipmi_intf * intf)
 	}
 		
 	intf->opened = 1;
+	intf->manufacturer_id = ipmi_get_oem(intf);
 
 	return 0;
 }
@@ -70,6 +72,7 @@ static int ipmi_imb_open(struct ipmi_intf * intf)
 static void ipmi_imb_close(struct ipmi_intf * intf)
 {
 	intf->opened = 0;
+	intf->manufacturer_id = IPMI_OEM_UNKNOWN;
 }
 
 static struct ipmi_rs * ipmi_imb_send_cmd(struct ipmi_intf * intf, struct ipmi_rq * req)
@@ -119,11 +122,11 @@ static struct ipmi_rs * ipmi_imb_send_cmd(struct ipmi_intf * intf, struct ipmi_r
 }
 
 struct ipmi_intf ipmi_imb_intf = {
-	name:		"imb",
-	desc:		"Intel IMB Interface",
-	open:		ipmi_imb_open,
-	close:		ipmi_imb_close,
-	sendrecv:	ipmi_imb_send_cmd,
-	target_addr:	IPMI_BMC_SLAVE_ADDR,
+	.name = "imb",
+	.desc = "Intel IMB Interface",
+	.open = ipmi_imb_open,
+	.close = ipmi_imb_close,
+	.sendrecv = ipmi_imb_send_cmd,
+	.target_addr = IPMI_BMC_SLAVE_ADDR,
 };
 
