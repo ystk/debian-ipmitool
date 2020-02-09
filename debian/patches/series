@@ -6,3 +6,4 @@
 112_fix_CVE-2011-4339.patch
 099_readme_typo
 096-manpage_longlines.patch
+CVE-2020-5208.patch

@@ -1,3 +1,14 @@
+ipmitool (1.8.14-4+deb8u1) jessie-security; urgency=high
+
+  * Non-maintainer upload by the LTS team.
+  * Fix CVE-2020-5208:
+    Christopher Ertl found that multiple functions in ipmitool neglect
+    proper checking of the data received from a remote LAN party, which may
+    lead to buffer overflows and potentially to remote code execution on the
+    ipmitool side.
+
+ -- Markus Koschany <apo@debian.org>  Sun, 09 Feb 2020 15:55:58 +0100
+
 ipmitool (1.8.14-4) unstable; urgency=medium
 
   * New debian/patches/120-Dell-13G.patch:
